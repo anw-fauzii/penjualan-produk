@@ -60,11 +60,11 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                     </Sidebar.Collapse>
                     <Sidebar.Item
                         as={Link}
-                        href="/inbox"
+                        href="/stok-barang"
                         icon={HiInbox}
-                        className={`hover:bg-blue-100 ${url === '/inbox' ? 'bg-blue-200' : ''}`}
+                        className={`hover:bg-blue-100 ${url === '/stok-barang' ? 'bg-blue-200' : ''}`}
                     >
-                        Inbox
+                        Stok Barang
                     </Sidebar.Item>
                     <Sidebar.Item
                         as={Link}
