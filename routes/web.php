@@ -41,6 +41,7 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::post('edit-barang/{id}', [App\Http\Controllers\BarangController::class, 'update']);
     Route::post('update-stok/{id}', [App\Http\Controllers\StokBarangController::class, 'updateStok']);
     Route::get('stok-barang', [App\Http\Controllers\StokBarangController::class, 'index']);
+    Route::resource('pemesanan', App\Http\Controllers\PesanController::class)->except('update');
 });
 
 require __DIR__ . '/auth.php';

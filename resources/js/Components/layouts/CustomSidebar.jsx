@@ -68,11 +68,11 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                     </Sidebar.Item>
                     <Sidebar.Item
                         as={Link}
-                        href="/users"
+                        href="/pemesanan"
                         icon={HiUser}
-                        className={`hover:bg-blue-100 ${url === '/users' ? 'bg-blue-200' : ''}`}
+                        className={`hover:bg-blue-100 ${url === '/pemesanan' ? 'bg-blue-200' : ''}`}
                     >
-                        Users
+                        Pemesanan
                     </Sidebar.Item>
                     <Sidebar.Item
                         as={Link}
