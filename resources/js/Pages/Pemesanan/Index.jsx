@@ -1,15 +1,20 @@
+import React, { useState } from 'react';
+import { Head } from '@inertiajs/react';
 import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
 import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { HiOutlineTrash, HiOutlineShoppingCart } from "react-icons/hi";
+import { NumericFormat } from 'react-number-format';
+import { router } from '@inertiajs/react';
+import toastr from 'toastr';
+import ModalPemesanan from '@/Components/modal/ModalPemesanan';
 
 export default function Index(props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [cart, setCart] = useState([]);
-    const [discount, setDiscount] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
@@ -40,20 +45,35 @@ export default function Index(props) {
     };
 
     const calculateTotals = () => {
-        const subtotal = cart.reduce((total, item) => total + (item.harga_jual * item.kuantitas), 0);
-        const total = subtotal - discount;
-        return { subtotal, total };
+        const totalHarga = cart.reduce((total, item) => total + (item.harga_jual * item.kuantitas), 0);
+        const subtotal = cart.reduce((total, item) => total + (item.harga_jual * item.kuantitas) - ((item.harga_jual * (item.diskon / 100)) * item.kuantitas), 0);
+        const diskon = cart.reduce((total, item) => total + ((item.harga_jual * (item.diskon / 100)) * item.kuantitas), 0);
+        const total = totalHarga - diskon;
+        return { subtotal, total, diskon, totalHarga };
     };
 
-    const { subtotal, total } = calculateTotals();
+    const { subtotal, total, diskon, totalHarga } = calculateTotals();
 
-    // Pengecekan data barang
     const barang = props.barang || [];
 
-    // Filter barang berdasarkan pencarian
     const filteredBarang = barang.filter(item =>
-        item.nama_barang.toLowerCase().includes(searchTerm.toLowerCase())
+        item.nama_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const placeOrder = (name, className) => {
+        router.post('/pemesanan', { cart, name, className }, {
+            onSuccess: () => {
+                toastr.success('Pesanan berhasil dibuat!');
+                setCart([]);
+                setSearchTerm('');
+                setIsModalOpen(false);
+            },
+            onError: () => {
+                toastr.error('Gagal membuat pesanan, silakan coba lagi.');
+            }
+        });
+    };
 
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -66,7 +86,7 @@ export default function Index(props) {
                 <main className="flex-1 p-4 md:p-6 bg-white border-l border-gray-300 mt-16 overflow-auto">
                     <JudulHeader
                         judul={props.title}
-                        subJudul="Menu Pemesanan"
+                        subJudul="Pemesanan"
                         className="text-lg md:text-2xl mb-4"
                     />
 
@@ -88,15 +108,23 @@ export default function Index(props) {
                                 <ul>
                                     {filteredBarang.length > 0 ? (
                                         filteredBarang.map(item => (
-                                            <li key={item.id} className="flex justify-between items-center mb-2 p-2 border border-gray-300 rounded">
-                                                <span>{item.nama_barang}</span>
-                                                <span>{item.harga_jual.toFixed(2)}</span>
-                                                <button
-                                                    onClick={() => addToCart(item)}
-                                                    className="bg-blue-500 text-white px-2 py-1 rounded"
-                                                >
-                                                    Tambah ke Keranjang
-                                                </button>
+                                            <li key={item.id} className="grid grid-cols-5 gap-4 mb-2 p-2 border border-gray-300 rounded">
+                                                <span className="col-span-2">{item.id} - {item.nama_barang}</span>
+                                                <span><NumericFormat
+                                                    value={item.harga_jual}
+                                                    displayType={'text'}
+                                                    thousandSeparator={true}
+                                                    prefix={'Rp. '}
+                                                /></span>
+                                                <span>Disc. {item.diskon}%</span>
+                                                <span className="inline-flex justify-center items-center">
+                                                    <button
+                                                        onClick={() => addToCart(item)}
+                                                        className="bg-blue-500 text-white px-2 py-1 rounded"
+                                                    >
+                                                        <HiOutlineShoppingCart />
+                                                    </button>
+                                                </span>
                                             </li>
                                         ))
                                     ) : (
@@ -115,6 +143,7 @@ export default function Index(props) {
                                         <th className="p-2 border">Nama Barang</th>
                                         <th className="p-2 border">Kuantitas</th>
                                         <th className="p-2 border">Harga</th>
+                                        <th className="p-2 border">Diskon</th>
                                         <th className="p-2 border">Subtotal</th>
                                         <th className="p-2 border">Aksi</th>
                                     </tr>
@@ -123,7 +152,7 @@ export default function Index(props) {
                                     {cart.map((item, index) => (
                                         <tr key={item.id}>
                                             <td className="p-2 border">{index + 1}</td>
-                                            <td className="p-2 border">{item.nama_barang}</td>
+                                            <td className="p-2 border">{item.id} - {item.nama_barang}</td>
                                             <td className="p-2 border">
                                                 <button
                                                     onClick={() => handleQuantityChange(item.id, -1)}
@@ -139,14 +168,36 @@ export default function Index(props) {
                                                     +
                                                 </button>
                                             </td>
-                                            <td className="p-2 border">{item.harga_jual.toFixed(2)}</td>
-                                            <td className="p-2 border">{(item.harga_jual * item.kuantitas).toFixed(2)}</td>
+                                            <td className="p-2 border">
+                                                <NumericFormat
+                                                    value={item.harga_jual}
+                                                    displayType={'text'}
+                                                    thousandSeparator={true}
+                                                    prefix={'Rp. '}
+                                                />
+                                            </td>
+                                            <td className="p-2 border">
+                                                <NumericFormat
+                                                    value={((item.harga_jual * (item.diskon / 100)) * item.kuantitas)}
+                                                    displayType={'text'}
+                                                    thousandSeparator={true}
+                                                    prefix={'Rp. '}
+                                                />
+                                            </td>
+                                            <td className="p-2 border">
+                                                <NumericFormat
+                                                    value={((item.harga_jual - (item.harga_jual * (item.diskon / 100))) * item.kuantitas)}
+                                                    displayType={'text'}
+                                                    thousandSeparator={true}
+                                                    prefix={'Rp. '}
+                                                />
+                                            </td>
                                             <td className="p-2 border">
                                                 <button
                                                     onClick={() => handleRemoveFromCart(item.id)}
                                                     className="bg-red-500 text-white px-2 py-1 rounded"
                                                 >
-                                                    Hapus
+                                                    <HiOutlineTrash />
                                                 </button>
                                             </td>
                                         </tr>
@@ -159,27 +210,54 @@ export default function Index(props) {
                         <div className="mt-4">
                             <div className="flex justify-between mb-2">
                                 <span className="font-semibold">Subtotal:</span>
-                                <span>{subtotal.toFixed(2)}</span>
+                                <span><NumericFormat
+                                    value={totalHarga}
+                                    displayType={'text'}
+                                    thousandSeparator={true}
+                                    prefix={'Rp. '}
+                                /></span>
                             </div>
                             <div className="flex justify-between mb-2">
                                 <span className="font-semibold">Diskon:</span>
-                                <input
-                                    type="number"
-                                    value={discount}
-                                    onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                                    className="p-2 border border-gray-300 rounded"
-                                />
+                                <span><NumericFormat
+                                    value={diskon}
+                                    displayType={'text'}
+                                    thousandSeparator={true}
+                                    prefix={'Rp. '}
+                                /></span>
                             </div>
                             <div className="flex justify-between font-bold">
                                 <span>Total:</span>
-                                <span>{total.toFixed(2)}</span>
+                                <span><NumericFormat
+                                    value={total}
+                                    displayType={'text'}
+                                    thousandSeparator={true}
+                                    prefix={'Rp. '}
+                                /></span>
                             </div>
+                        </div>
+
+                        {/* Place Order Button */}
+                        <div className="mt-4">
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                            >
+                                Buat Pesanan
+                            </button>
                         </div>
                     </div>
                 </main>
             </div>
 
             <CustomFooter />
+
+            {/* Modal Component */}
+            <ModalPemesanan
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={placeOrder}
+            />
         </div>
     );
 }
