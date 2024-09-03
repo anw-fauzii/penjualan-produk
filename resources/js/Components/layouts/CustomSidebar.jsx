@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from 'flowbite-react';
-import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser } from 'react-icons/hi';
+import { HiDocumentReport, HiChartPie, HiInbox, HiShoppingBag, HiLogout, HiShoppingCart } from 'react-icons/hi';
 import { Link, usePage } from '@inertiajs/react';
 
 const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
     const { url } = usePage();
-    const [isCollapseOpen, setIsCollapseOpen] = useState(false);
+    const [isCollapseMasterOpen, setIsCollapseMasterOpen] = useState(false);
+    const [isCollapseLaporanOpen, setIsCollapseLaporanOpen] = useState(false);
 
     useEffect(() => {
-        if (url.includes('/supplier') || url.includes('/kategori') || url.includes('/barang')) {
-            setIsCollapseOpen(true);
-        } else {
-            setIsCollapseOpen(false);
-        }
+        setIsCollapseMasterOpen(url.includes('/supplier') || url.includes('/kategori') || url.includes('/barang'));
+        setIsCollapseLaporanOpen(url.includes('/pemesanan'));
     }, [url]);
 
     return (
@@ -33,7 +31,7 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                     <Sidebar.Collapse
                         icon={HiShoppingBag}
                         label="Data Master"
-                        open={isCollapseOpen}
+                        open={isCollapseMasterOpen}
                         className={`hover:bg-blue-100 ${url.includes('/supplier') || url.includes('/kategori') || url.includes('/barang') ? 'bg-blue-200' : ''}`}
                     >
                         <Sidebar.Item
@@ -66,29 +64,35 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                     >
                         Stok Barang
                     </Sidebar.Item>
-                    <Sidebar.Item
-                        as={Link}
-                        href="/pemesanan"
-                        icon={HiUser}
-                        className={`hover:bg-blue-100 ${url === '/pemesanan' ? 'bg-blue-200' : ''}`}
+                    <Sidebar.Collapse
+                        icon={HiDocumentReport}
+                        label="Pesanan"
+                        open={isCollapseLaporanOpen}
+                        className={`hover:bg-blue-100 ${url.includes('/pemesanan/create') || url.includes('/pemesanan') ? 'bg-blue-200' : ''}`}
                     >
-                        Pemesanan
-                    </Sidebar.Item>
+                        <Sidebar.Item
+                            as={Link}
+                            href="/pemesanan/create"
+                            className={url === '/pemesanan/create' ? 'bg-blue-200' : ''}
+                        >
+                            Buat Pesanan
+                        </Sidebar.Item>
+                        <Sidebar.Item
+                            as={Link}
+                            href="/pemesanan"
+                            className={url === '/pemesanan' ? 'bg-blue-200' : ''}
+                        >
+                            List Pesanan
+                        </Sidebar.Item>
+                    </Sidebar.Collapse>
                     <Sidebar.Item
                         as={Link}
-                        href="/signin"
-                        icon={HiArrowSmRight}
+                        href="/logout"
+                        method="POST"
+                        icon={HiLogout}
                         className={`hover:bg-blue-100 ${url === '/signin' ? 'bg-blue-200' : ''}`}
                     >
-                        Sign In
-                    </Sidebar.Item>
-                    <Sidebar.Item
-                        as={Link}
-                        href="/signup"
-                        icon={HiTable}
-                        className={`hover:bg-blue-100 ${url === '/signup' ? 'bg-blue-200' : ''}`}
-                    >
-                        Sign Up
+                        Logout
                     </Sidebar.Item>
                 </Sidebar.ItemGroup>
             </Sidebar.Items>

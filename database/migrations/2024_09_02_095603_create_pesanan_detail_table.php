@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pesanan__detail', function (Blueprint $table) {
+        Schema::create('pesanan_detail', function (Blueprint $table) {
             $table->id();
             $table->string('pesanan_id');
             $table->foreign('pesanan_id')->references('id')->on('pesanan');
@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('kuantitas');
             $table->integer('harga');
             $table->integer('diskon');
+            $table->integer('subtotal');
             $table->timestamps();
         });
     }

@@ -1,76 +1,156 @@
-import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
 import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
 import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
-import { HiOutlineTrash, HiOutlineShoppingCart } from "react-icons/hi";
+import ModalStok from '@/Components/modal/ModalStok';
+import { Head, Link, router } from '@inertiajs/react';
+import { TextInput } from 'flowbite-react';
+import { useState } from 'react';
+import DataTable from 'react-data-table-component';
 import { NumericFormat } from 'react-number-format';
-import { router } from '@inertiajs/react';
+import Swal from 'sweetalert2';
 import toastr from 'toastr';
-import ModalPemesanan from '@/Components/modal/ModalPemesanan';
 
 export default function Index(props) {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [modalData, setModalData] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
-    const [cart, setCart] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [filteredData, setFilteredData] = useState((props.pesanan || []).map((item, index) => ({
+        no: index + 1,
+        ...item,
+    })));
+    console.log(props.pesanan)
+    const handleInfoClick = (id) => {
+        const selectedData = props.pesanan.find(item => item.id === id);
 
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-    const handleSearchChange = (e) => setSearchTerm(e.target.value);
-
-    const addToCart = (item) => {
-        const existingItem = cart.find(cartItem => cartItem.id === item.id);
-        if (existingItem) {
-            setCart(cart.map(cartItem =>
-                cartItem.id === item.id
-                    ? { ...cartItem, kuantitas: cartItem.kuantitas + 1 }
-                    : cartItem
-            ));
-        } else {
-            setCart([...cart, { ...item, kuantitas: 1 }]);
+        if (selectedData) {
+            setModalData(selectedData);
+            setOpenModal(true);
         }
     };
 
-    const handleQuantityChange = (id, delta) => {
-        setCart(cart.map(item =>
-            item.id === id
-                ? { ...item, kuantitas: Math.max(1, item.kuantitas + delta) }
-                : item
-        ));
+    const handleSearch = (event) => {
+        const searchValue = event.target.value.toLowerCase();
+        setSearchTerm(searchValue);
+        const filtered = (props.pesanan || []).map((item, index) => ({
+            no: index + 1,
+            ...item,
+        })).filter(item =>
+            item.id.toLowerCase().includes(searchValue) ||
+            item.nama_barang.toLowerCase().includes(searchValue)
+        );
+        setFilteredData(filtered);
     };
 
-    const handleRemoveFromCart = (id) => {
-        setCart(cart.filter(item => item.id !== id));
-    };
+    const columns = [
+        {
+            name: 'No',
+            selector: row => row.no,
+            sortable: true,
+            width: '8%',
+        },
+        {
+            name: 'Kode',
+            selector: row => row.id,
+            sortable: true,
+            width: '15%',
+        },
+        {
+            name: 'Unit',
+            selector: row => row.unit,
+            sortable: true,
+            width: '10%'
+        },
+        {
+            name: 'Nama pesanan',
+            selector: row => row.nama_barang,
+            sortable: true,
+            width: '20%',
+        },
+        {
+            name: 'Harga Jual',
+            selector: row => (
+                <NumericFormat
+                    value={row.harga_jual}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    prefix={'Rp. '}
+                />
+            ),
+            sortable: true,
+            width: '14%'
+        },
+        {
+            name: 'Harga Beli',
+            selector: row => (
+                <NumericFormat
+                    value={row.harga_dasar}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    prefix={'Rp. '}
+                />
+            ),
+            sortable: true,
+            width: '14%'
+        },
+        {
+            name: 'Stok',
+            selector: row => row.stok,
+            sortable: true,
+            width: '10%'
+        },
 
-    const calculateTotals = () => {
-        const totalHarga = cart.reduce((total, item) => total + (item.harga_jual * item.kuantitas), 0);
-        const subtotal = cart.reduce((total, item) => total + (item.harga_jual * item.kuantitas) - ((item.harga_jual * (item.diskon / 100)) * item.kuantitas), 0);
-        const diskon = cart.reduce((total, item) => total + ((item.harga_jual * (item.diskon / 100)) * item.kuantitas), 0);
-        const total = totalHarga - diskon;
-        return { subtotal, total, diskon, totalHarga };
-    };
+    ];
 
-    const { subtotal, total, diskon, totalHarga } = calculateTotals();
-
-    const barang = props.barang || [];
-
-    const filteredBarang = barang.filter(item =>
-        item.nama_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.id.toLowerCase().includes(searchTerm.toLowerCase())
+    const ExpandedComponent = ({ data }) => (
+        <div className="p-4">
+            <div className="flex justify-start">
+                <Link replace href={route('pemesanan.edit', data.id)}>
+                    <button type="button" className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center m-1">
+                        <svg className="w-4 h-4 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                            <path d="M12.687 14.408a3.01 3.01 0 0 1-1.533.821l-3.566.713a3 3 0 0 1-3.53-3.53l.713-3.566a3.01 3.01 0 0 1 .821-1.533L10.905 2H2.167A2.169 2.169 0 0 0 0 4.167v11.666A2.169 2.169 0 0 0 2.167 18h11.666A2.169 2.169 0 0 0 16 15.833V11.1l-3.313 3.308Zm5.53-9.065.546-.546a2.518 2.518 0 0 0 0-3.56 2.576 2.576 0 0 0-3.559 0l-.547.547 3.56 3.56Z" />
+                            <path d="M13.243 3.2 7.359 9.081a.5.5 0 0 0-.136.256L6.51 12.9a.5.5 0 0 0 .59.59l3.566-.713a.5.5 0 0 0 .255-.136L16.8 6.757 13.243 3.2Z" />
+                        </svg>
+                    </button>
+                </Link>
+                <button onClick={() => handleInfoClick(data.id)} type="button" className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center m-1">
+                    <svg className="w-4 h-4 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9h2v5m-2 0h4M9.408 5.5h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </button>
+                <button onClick={() => handleDelete(data.id)} type="button" className="text-gray-900 bg-gradient-to-r from-lime-200 via-lime-400 to-lime-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-lime-300 dark:focus:ring-lime-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center m-1">
+                    <svg className="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
     );
 
-    const placeOrder = (name, className) => {
-        router.post('/pemesanan', { cart, name, className }, {
-            onSuccess: () => {
-                toastr.success('Pesanan berhasil dibuat!');
-                setCart([]);
-                setSearchTerm('');
-                setIsModalOpen(false);
-            },
-            onError: () => {
-                toastr.error('Gagal membuat pesanan, silakan coba lagi.');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: 'Ketika dihapus tidak dapat kembali',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(`/pesanan/${id}`, {
+                    onSuccess: () => {
+                        toastr.success('Data Berhasil Dihapus', 'Sukses!');
+                        router.get(route('pemesanan.index'));
+                    },
+                    onError: () => {
+                        toastr.error('Terjadi kesalahan', 'Gagal!');
+                    },
+                });
             }
         });
     };
@@ -86,178 +166,46 @@ export default function Index(props) {
                 <main className="flex-1 p-4 md:p-6 bg-white border-l border-gray-300 mt-16 overflow-auto">
                     <JudulHeader
                         judul={props.title}
-                        subJudul="Pemesanan"
+                        subJudul="Pesanan"
                         className="text-lg md:text-2xl mb-4"
                     />
-
-                    <div className="bg-white shadow-lg rounded-lg p-4 md:p-6 border border-gray-200">
-                        {/* Search Bar */}
-                        <div className="mb-4">
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                                placeholder="Cari produk..."
-                                className="p-2 border border-gray-300 rounded w-full"
-                            />
-                        </div>
-
-                        {/* Product List - Only show if searchTerm is not empty */}
-                        {searchTerm && (
-                            <div className="mb-4">
-                                <ul>
-                                    {filteredBarang.length > 0 ? (
-                                        filteredBarang.map(item => (
-                                            <li key={item.id} className="grid grid-cols-5 gap-4 mb-2 p-2 border border-gray-300 rounded">
-                                                <span className="col-span-2">{item.id} - {item.nama_barang}</span>
-                                                <span><NumericFormat
-                                                    value={item.harga_jual}
-                                                    displayType={'text'}
-                                                    thousandSeparator={true}
-                                                    prefix={'Rp. '}
-                                                /></span>
-                                                <span>Disc. {item.diskon}%</span>
-                                                <span className="inline-flex justify-center items-center">
-                                                    <button
-                                                        onClick={() => addToCart(item)}
-                                                        className="bg-blue-500 text-white px-2 py-1 rounded"
-                                                    >
-                                                        <HiOutlineShoppingCart />
-                                                    </button>
-                                                </span>
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="p-4 text-center">No items found</li>
-                                    )}
-                                </ul>
-                            </div>
-                        )}
-
-                        {/* Cart Table */}
-                        <div className="mb-4 overflow-x-auto">
-                            <table className="w-full border border-gray-300">
-                                <thead>
-                                    <tr className="bg-gray-200">
-                                        <th className="p-2 border">No</th>
-                                        <th className="p-2 border">Nama Barang</th>
-                                        <th className="p-2 border">Kuantitas</th>
-                                        <th className="p-2 border">Harga</th>
-                                        <th className="p-2 border">Diskon</th>
-                                        <th className="p-2 border">Subtotal</th>
-                                        <th className="p-2 border">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {cart.map((item, index) => (
-                                        <tr key={item.id}>
-                                            <td className="p-2 border">{index + 1}</td>
-                                            <td className="p-2 border">{item.id} - {item.nama_barang}</td>
-                                            <td className="p-2 border">
-                                                <button
-                                                    onClick={() => handleQuantityChange(item.id, -1)}
-                                                    className="p-1 border bg-gray-200"
-                                                >
-                                                    -
-                                                </button>
-                                                <span className="px-2">{item.kuantitas}</span>
-                                                <button
-                                                    onClick={() => handleQuantityChange(item.id, 1)}
-                                                    className="p-1 border bg-gray-200"
-                                                >
-                                                    +
-                                                </button>
-                                            </td>
-                                            <td className="p-2 border">
-                                                <NumericFormat
-                                                    value={item.harga_jual}
-                                                    displayType={'text'}
-                                                    thousandSeparator={true}
-                                                    prefix={'Rp. '}
-                                                />
-                                            </td>
-                                            <td className="p-2 border">
-                                                <NumericFormat
-                                                    value={((item.harga_jual * (item.diskon / 100)) * item.kuantitas)}
-                                                    displayType={'text'}
-                                                    thousandSeparator={true}
-                                                    prefix={'Rp. '}
-                                                />
-                                            </td>
-                                            <td className="p-2 border">
-                                                <NumericFormat
-                                                    value={((item.harga_jual - (item.harga_jual * (item.diskon / 100))) * item.kuantitas)}
-                                                    displayType={'text'}
-                                                    thousandSeparator={true}
-                                                    prefix={'Rp. '}
-                                                />
-                                            </td>
-                                            <td className="p-2 border">
-                                                <button
-                                                    onClick={() => handleRemoveFromCart(item.id)}
-                                                    className="bg-red-500 text-white px-2 py-1 rounded"
-                                                >
-                                                    <HiOutlineTrash />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Total Harga */}
-                        <div className="mt-4">
-                            <div className="flex justify-between mb-2">
-                                <span className="font-semibold">Subtotal:</span>
-                                <span><NumericFormat
-                                    value={totalHarga}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'Rp. '}
-                                /></span>
-                            </div>
-                            <div className="flex justify-between mb-2">
-                                <span className="font-semibold">Diskon:</span>
-                                <span><NumericFormat
-                                    value={diskon}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'Rp. '}
-                                /></span>
-                            </div>
-                            <div className="flex justify-between font-bold">
-                                <span>Total:</span>
-                                <span><NumericFormat
-                                    value={total}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'Rp. '}
-                                /></span>
+                    <div className="bg-white shadow-lg rounded-lg p-4 md:p-6 border border-gray-200 relative">
+                        <div className="flex flex-col md:flex-row justify-between mb-4 space-y-4 md:space-y-0 md:space-x-4">
+                            <Link replace href={route('pemesanan.create')}>
+                                <button type="button" className="flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
+                                    <svg className="w-[14px] h-[14px] md:w-auto text-center mr-2 mt-0.5 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 1v16M1 9h16" />
+                                    </svg>
+                                    <span className='flex'>Tambah </span>
+                                </button>
+                            </Link>
+                            <div className="flex items-center w-full md:w-auto">
+                                <TextInput
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                    placeholder="Cari Pesanan..."
+                                    className="w-full"
+                                />
                             </div>
                         </div>
-
-                        {/* Place Order Button */}
-                        <div className="mt-4">
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
-                            >
-                                Buat Pesanan
-                            </button>
+                        <div className="overflow-x-auto">
+                            <div className="min-w-full">
+                                <DataTable
+                                    columns={columns}
+                                    data={filteredData}
+                                    pagination
+                                    fixedHeader
+                                    fixedHeaderScrollHeight="300px"
+                                    expandableRows
+                                    expandableRowsComponent={ExpandedComponent}
+                                />
+                            </div>
                         </div>
                     </div>
                 </main>
+                <ModalStok openModal={openModal} setOpenModal={setOpenModal} modalData={modalData} />
             </div>
-
             <CustomFooter />
-
-            {/* Modal Component */}
-            <ModalPemesanan
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={placeOrder}
-            />
         </div>
     );
 }

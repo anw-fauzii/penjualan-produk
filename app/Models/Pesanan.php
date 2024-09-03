@@ -20,6 +20,7 @@ class Pesanan extends Model
         'id',
         'nama_pemesan',
         'kelas',
+        'nama_siswa',
         'user_id',
         'total_harga',
         'status'
