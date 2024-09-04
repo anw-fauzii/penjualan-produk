@@ -6,11 +6,13 @@ import { Link, usePage } from '@inertiajs/react';
 const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
     const { url } = usePage();
     const [isCollapseMasterOpen, setIsCollapseMasterOpen] = useState(false);
+    const [isCollapsePesananOpen, setIsCollapsePesananOpen] = useState(false);
     const [isCollapseLaporanOpen, setIsCollapseLaporanOpen] = useState(false);
-
+    console.log(url);
     useEffect(() => {
         setIsCollapseMasterOpen(url.includes('/supplier') || url.includes('/kategori') || url.includes('/barang'));
-        setIsCollapseLaporanOpen(url.includes('/pemesanan'));
+        setIsCollapseLaporanOpen(url.includes('/laporan-penjualan') || url.includes('/laporan-laba-rugi'));
+        setIsCollapsePesananOpen(url.includes('/pemesanan'));
     }, [url]);
 
     return (
@@ -65,9 +67,9 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                         Stok Barang
                     </Sidebar.Item>
                     <Sidebar.Collapse
-                        icon={HiDocumentReport}
+                        icon={HiShoppingCart}
                         label="Pesanan"
-                        open={isCollapseLaporanOpen}
+                        open={isCollapsePesananOpen}
                         className={`hover:bg-blue-100 ${url.includes('/pemesanan/create') || url.includes('/pemesanan') ? 'bg-blue-200' : ''}`}
                     >
                         <Sidebar.Item
@@ -83,6 +85,27 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                             className={url === '/pemesanan' ? 'bg-blue-200' : ''}
                         >
                             List Pesanan
+                        </Sidebar.Item>
+                    </Sidebar.Collapse>
+                    <Sidebar.Collapse
+                        icon={HiDocumentReport}
+                        label="Laporan"
+                        open={isCollapseLaporanOpen}
+                        className={`hover:bg-blue-100 ${url.includes('laporan-laba-rugi') || url.includes('laporan-penjualan') ? 'bg-blue-200' : ''}`}
+                    >
+                        <Sidebar.Item
+                            as={Link}
+                            href="laporan-laba-rugi"
+                            className={url === '/laporan-laba-rugi' ? 'bg-blue-200' : ''}
+                        >
+                            Laba Rugi
+                        </Sidebar.Item>
+                        <Sidebar.Item
+                            as={Link}
+                            href="laporan-penjualan"
+                            className={url.includes('laporan-penjualan') ? 'bg-blue-200' : ''}
+                        >
+                            Penjualan
                         </Sidebar.Item>
                     </Sidebar.Collapse>
                     <Sidebar.Item

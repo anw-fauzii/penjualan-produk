@@ -36,8 +36,7 @@ export default function Index(props) {
             no: index + 1,
             ...item,
         })).filter(item =>
-            item.id.toLowerCase().includes(searchValue) ||
-            item.nama_barang.toLowerCase().includes(searchValue)
+            item.id.toLowerCase().includes(searchValue)
         );
         setFilteredData(filtered);
     };
@@ -56,14 +55,14 @@ export default function Index(props) {
             width: '15%',
         },
         {
-            name: 'Unit',
-            selector: row => row.unit,
+            name: 'Nama Penerima',
+            selector: row => row.nama_pemesan,
             sortable: true,
-            width: '10%'
+            width: '17%'
         },
         {
             name: 'Nama pesanan',
-            selector: row => row.nama_barang,
+            selector: row => row.nama_siswa + " (" + row.kelas + ")",
             sortable: true,
             width: '20%',
         },
@@ -71,7 +70,7 @@ export default function Index(props) {
             name: 'Harga Jual',
             selector: row => (
                 <NumericFormat
-                    value={row.harga_jual}
+                    value={row.total_harga}
                     displayType={'text'}
                     thousandSeparator={true}
                     prefix={'Rp. '}
@@ -80,26 +79,6 @@ export default function Index(props) {
             sortable: true,
             width: '14%'
         },
-        {
-            name: 'Harga Beli',
-            selector: row => (
-                <NumericFormat
-                    value={row.harga_dasar}
-                    displayType={'text'}
-                    thousandSeparator={true}
-                    prefix={'Rp. '}
-                />
-            ),
-            sortable: true,
-            width: '14%'
-        },
-        {
-            name: 'Stok',
-            selector: row => row.stok,
-            sortable: true,
-            width: '10%'
-        },
-
     ];
 
     const ExpandedComponent = ({ data }) => (
@@ -195,7 +174,7 @@ export default function Index(props) {
                                     data={filteredData}
                                     pagination
                                     fixedHeader
-                                    fixedHeaderScrollHeight="300px"
+                                    fixedHeaderScrollHeight="400px"
                                     expandableRows
                                     expandableRowsComponent={ExpandedComponent}
                                 />

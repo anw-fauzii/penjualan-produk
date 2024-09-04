@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pesanan extends Model
 {
@@ -25,6 +26,11 @@ class Pesanan extends Model
         'total_harga',
         'status'
     ];
+
+    public function pesanan_detail(): HasMany
+    {
+        return $this->hasMany(PesananDetail::class);
+    }
 
     public static function boot()
     {

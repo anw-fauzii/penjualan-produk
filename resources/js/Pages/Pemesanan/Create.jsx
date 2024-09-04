@@ -108,7 +108,7 @@ export default function Create(props) {
                                 <ul>
                                     {filteredBarang.length > 0 ? (
                                         filteredBarang.map(item => (
-                                            <li key={item.id} className="grid grid-cols-5 gap-4 mb-2 p-2 border border-gray-300 rounded">
+                                            <li key={item.id} className="grid grid-cols-6 gap-4 mb-2 p-2 border border-gray-300 rounded">
                                                 <span className="inline-flex justify-center items-center">
                                                     <button
                                                         onClick={() => addToCart(item)}
@@ -125,6 +125,7 @@ export default function Create(props) {
                                                     prefix={'Rp. '}
                                                 /></span>
                                                 <span>Disc. {item.diskon}%</span>
+                                                <span>{item.stok} Tersedia</span>
                                             </li>
                                         ))
                                     ) : (

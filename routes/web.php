@@ -25,11 +25,8 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware(['auth', 'revalidate'])->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -42,6 +39,8 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::post('update-stok/{id}', [App\Http\Controllers\StokBarangController::class, 'updateStok']);
     Route::get('stok-barang', [App\Http\Controllers\StokBarangController::class, 'index']);
     Route::resource('pemesanan', App\Http\Controllers\PesanController::class)->except('update');
+    Route::get('laporan-laba-rugi', [App\Http\Controllers\LaporanController::class, 'labarugi']);
+    Route::get('laporan-penjualan', [App\Http\Controllers\LaporanController::class, 'penjualan']);
 });
 
 require __DIR__ . '/auth.php';
