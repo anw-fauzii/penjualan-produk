@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "flowbite-react": "^0.10.1",
+        "highcharts-react-official": "^3.2.1",
         "react-data-table-component": "^7.6.2",
         "react-number-format": "^5.4.1",
         "react-select": "^5.8.0",

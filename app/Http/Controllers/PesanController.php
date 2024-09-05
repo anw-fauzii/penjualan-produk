@@ -69,4 +69,11 @@ class PesanController extends Controller
         }
         return redirect()->route('pemesanan.index');
     }
+
+    public function printPesanan(Request $request)
+    {
+        $data = $request->all();
+        $html = view('pesanan-print', ['data' => $data])->render();
+        return response()->json(['html' => $html]);
+    }
 }

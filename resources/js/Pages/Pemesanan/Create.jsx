@@ -256,6 +256,7 @@ export default function Create(props) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={placeOrder}
+                dataCart={cart}
             />
         </div>
     );

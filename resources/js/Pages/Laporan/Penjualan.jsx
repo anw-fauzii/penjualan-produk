@@ -32,7 +32,6 @@ export default function Penjualan(props) {
         );
         setFilteredData(filtered);
     };
-    console.log(props.pesanan)
     const handleInfoClick = (id) => {
         const selectedData = props.pesanan.find(item => item.id === id);
 
@@ -98,7 +97,7 @@ export default function Penjualan(props) {
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-    console.log(props)
+
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
             <Head title={props.title} />

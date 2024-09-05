@@ -8,7 +8,6 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
     const [isCollapseMasterOpen, setIsCollapseMasterOpen] = useState(false);
     const [isCollapsePesananOpen, setIsCollapsePesananOpen] = useState(false);
     const [isCollapseLaporanOpen, setIsCollapseLaporanOpen] = useState(false);
-    console.log(url);
     useEffect(() => {
         setIsCollapseMasterOpen(url.includes('/supplier') || url.includes('/kategori') || url.includes('/barang'));
         setIsCollapseLaporanOpen(url.includes('/laporan-penjualan') || url.includes('/laporan-laba-rugi'));

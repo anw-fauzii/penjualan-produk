@@ -5,8 +5,44 @@ import JudulHeader from '@/Components/layouts/JudulHeader';
 import { Head } from '@inertiajs/react';
 import { Table } from 'flowbite-react';
 import { useState } from 'react';
+import Highcharts from 'highcharts/highstock'
+import HighchartsReact from 'highcharts-react-official'
 
 export default function Dashboard(props) {
+    const { salesData } = props;
+
+    const categories = salesData.map(item => item.day_name);
+    const data = salesData.map(item => parseFloat(item.total_sales));
+
+    const options = {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Penjualan Harian'
+        },
+        xAxis: {
+            categories: categories,
+            title: {
+                text: 'Hari'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Jumlah Penjualan'
+            }
+        },
+        series: [
+            {
+                name: 'Jumlah Penjualan',
+                data: data
+            },
+            {
+                name: 'Jumlah Penjualan',
+                data: data
+            }
+        ]
+    };
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -56,9 +92,9 @@ export default function Dashboard(props) {
                     </div>
                     <div className="grid lg:grid-cols-2 gap-4 mb-4">
                         <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                            <p className=" text-gray-700 mb-2 text-center">
-                                Barang Dengan Stok Terkecil
-                            </p>
+                            <h2 className=" text-xl text-gray-700 text-center mb-4">
+                                <strong>Barang Dengan Stok Terkecil</strong>
+                            </h2>
                             <div className="overflow-x-auto">
                                 <Table hoverable>
                                     <Table.Head>
@@ -82,6 +118,13 @@ export default function Dashboard(props) {
                                 </Table>
                             </div>
                         </div>
+                        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                            <HighchartsReact
+                                highcharts={Highcharts}
+                                options={options}
+                            />
+                        </div>
+
                     </div>
                 </main>
             </div>

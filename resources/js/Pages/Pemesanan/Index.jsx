@@ -19,7 +19,6 @@ export default function Index(props) {
         no: index + 1,
         ...item,
     })));
-    console.log(props.pesanan)
     const handleInfoClick = (id) => {
         const selectedData = props.pesanan.find(item => item.id === id);
 

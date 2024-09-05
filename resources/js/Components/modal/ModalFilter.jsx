@@ -7,7 +7,6 @@ const ModalFilter = ({ openFilterModal, setOpenFilterModal, hariIni }) => {
         mulai: hariIni,
         akhir: hariIni,
     });
-    console.log(hariIni);
     const submit = (e) => {
         e.preventDefault();
         get('/laporan-penjualan', {

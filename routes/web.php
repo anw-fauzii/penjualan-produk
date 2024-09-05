@@ -39,6 +39,7 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::post('update-stok/{id}', [App\Http\Controllers\StokBarangController::class, 'updateStok']);
     Route::get('stok-barang', [App\Http\Controllers\StokBarangController::class, 'index']);
     Route::resource('pemesanan', App\Http\Controllers\PesanController::class)->except('update');
+    Route::post('/print-pesanan', [App\Http\Controllers\PesanController::class, 'printPesanan']);
     Route::get('laporan-laba-rugi', [App\Http\Controllers\LaporanController::class, 'labarugi']);
     Route::get('laporan-penjualan', [App\Http\Controllers\LaporanController::class, 'penjualan']);
 });
