@@ -16,7 +16,7 @@ class PesanController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $pesanan = Pesanan::All();
+            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang')->get();
             return Inertia::render('Pemesanan/Index', [
                 'title' => "Daftar Pesanan",
                 'pesanan' => $pesanan,
@@ -67,7 +67,7 @@ class PesanController extends Controller
                 'stok' => $barang->stok - $data['kuantitas'],
             ]);
         }
-        return redirect()->route('pemesanan.index');
+        return to_route('pemesanan.index')->with('message', $pesanan);
     }
 
     public function printPesanan(Request $request)

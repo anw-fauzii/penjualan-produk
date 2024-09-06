@@ -2,7 +2,7 @@ import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
 import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
-import ModalStok from '@/Components/modal/ModalStok';
+import ModalDetail from '@/Components/modal/ModalDetail';
 import { Head, Link, router } from '@inertiajs/react';
 import { TextInput } from 'flowbite-react';
 import { useState } from 'react';
@@ -181,7 +181,7 @@ export default function Index(props) {
                         </div>
                     </div>
                 </main>
-                <ModalStok openModal={openModal} setOpenModal={setOpenModal} modalData={modalData} />
+                <ModalDetail openModal={openModal} setOpenModal={setOpenModal} modalData={modalData} />
             </div>
             <CustomFooter />
         </div>

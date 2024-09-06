@@ -63,7 +63,175 @@ export default function Create(props) {
 
     const placeOrder = (namaPemesan, kelas, namaSiswa) => {
         router.post('/pemesanan', { cart, namaPemesan, kelas, namaSiswa }, {
-            onSuccess: () => {
+            onSuccess: (response) => {
+                console.log(response)
+                const numberFormat = new Intl.NumberFormat('id-ID', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                });
+                const totalHarga = cart.reduce((total, item) => {
+                    return total + (item.harga_jual * item.kuantitas);
+                }, 0);
+
+                const totalDiskon = cart.reduce((total, item) => {
+                    return total + ((item.harga_jual * (item.diskon / 100)) * item.kuantitas);
+                }, 0);
+
+                const totalBelanja = totalHarga - totalDiskon;
+
+                console.log("Image path:", "/storage/Untitled.png");
+
+                const totalHargaFormatted = numberFormat.format(totalHarga);
+                const totalDiskonFormatted = numberFormat.format(totalDiskon);
+                const totalBelanjaFormatted = numberFormat.format(totalBelanja);
+                const cartRows = cart.map(item => {
+                    // Format harga dan total
+                    const hargaJualFormatted = numberFormat.format(item.harga_jual);
+                    const totalFormatted = numberFormat.format(item.harga_jual * item.kuantitas);
+
+                    // Generate the main row for the item
+                    let itemRow = `
+                    <tr>
+                        <td>${item.nama_barang}</td>
+                        <td>${item.kuantitas}</td>
+                        <td style="text-align:right;">${hargaJualFormatted}</td>
+                        <td style="text-align:right;">${totalFormatted}</td>
+                    </tr>
+                `;
+
+                    // Conditionally add a discount row if applicable
+                    if (item.diskon !== 0) {
+                        const diskonFormatted = numberFormat.format(((item.harga_jual * (item.diskon / 100)) * item.kuantitas));
+                        itemRow += `
+                        <tr>
+                            <td colspan="4">Disc: -${diskonFormatted}</td>
+                        </tr>
+                    `;
+                    }
+
+                    return itemRow;
+                }).join('');
+
+                const receiptContent = `
+                <html>
+                <head>
+                    <title>Struk Pembelian</title>
+                    <style>
+                        body { 
+                            font-family: 'Courier New', Courier, monospace; 
+                            margin: 0; 
+                            padding: 0; 
+                        }
+                        .receipt { 
+                            width: 80mm; 
+                            margin: 0; 
+                            padding: 2mm; /* Padding 2mm */
+                            box-sizing: border-box;
+                        }
+                        .receipt h1 { 
+                            font-size: 14px; 
+                            margin-bottom: 5px; 
+                        }
+                        .receipt p { 
+                            margin: 2px 0; 
+                            font-size: 12px; 
+                        }
+                        .receipt .footer { 
+                            margin-top: 10px; 
+                            text-align: center; 
+                            font-size: 10px; 
+                            color: #888; 
+                        }
+                        .receipt table {
+                            width: 100%;
+                            border-collapse: collapse; 
+                            font-size: 10px; 
+                        }
+                        .receipt th, .receipt td {
+                            padding: 1mm; 
+                            text-align: left;
+                        }
+                        .receipt th {
+                            background-color: #f4f4f4;
+                        }
+                        .receipt .line {
+                            border: none;
+                            border-top: 1px solid #000;
+                            height: 1px;
+                            margin: 5px 0;
+                        }
+                        @media print {
+                            body { margin: 0; }
+                            .receipt { 
+                                width: 80mm; 
+                                border: none; 
+                                box-shadow: none;
+                            }
+                            @page {
+                                size: 80mm auto; 
+                                margin: 0; 
+                            }
+                            .receipt .footer { display: none; }
+                            .receipt img {
+                                display: block;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt">
+                            <img src="/logo.png" style="width: 15%; height: auto; text-align:center" />
+                            <h1>Nota Pembelian</h1>
+                        <p><strong>Nama Siswa:</strong>${response.props.flash.message.nama_siswa}</p>
+                        <p><strong>Kelas:</strong>${response.props.flash.message.kelas}</p>
+                        <p><strong>Nama Pengambil:</strong>${response.props.flash.message.nama_pemesan}</p>
+                        <div class="line"></div>
+                        <p>${response.props.flash.message.id}</p>
+                        <div class="line"></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center;">Item</th>
+                                    <th style="text-align:center;">Qty</th>
+                                    <th style="text-align:center;">Harga</th>
+                                    <th style="text-align:center;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${cartRows}
+                                <tr>
+                                    <td colspan="3" style="text-align:right;">Total Item</td>
+                                    <td style="text-align:right;">${totalHargaFormatted}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="text-align:right;">Total Diskon</td>
+                                    <td style="text-align:right;">${totalDiskonFormatted}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="text-align:right;">Total Belanja</td>
+                                    <td style="text-align:right;">${totalBelanjaFormatted}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="line"></div>
+                        <div class="footer">Terima kasih atas pembelian Anda!</div>
+                    </div>
+                </body>
+                </html>
+                `;
+
+
+                const printWindow = window.open('', '', 'width=800');
+                printWindow.document.write(receiptContent);
+                printWindow.document.close();
+                printWindow.focus();
+
+                printWindow.addEventListener('afterprint', () => {
+                    printWindow.close();
+                });
+
+                printWindow.print();
+
                 toastr.success('Pesanan berhasil dibuat!');
                 setCart([]);
                 setSearchTerm('');
@@ -256,7 +424,6 @@ export default function Create(props) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={placeOrder}
-                dataCart={cart}
             />
         </div>
     );
