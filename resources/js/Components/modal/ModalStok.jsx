@@ -2,7 +2,7 @@ import { router, useForm } from "@inertiajs/react";
 import { Modal, Button } from "flowbite-react";
 import toastr from "toastr";
 
-const ModalStok = ({ openModal, setOpenModal, modalData }) => {
+const ModalStok = ({ openModalStok, setOpenModalStok, modalData }) => {
     const { data, setData, post, errors } = useForm({
         stok: '',
     });
@@ -16,7 +16,7 @@ const ModalStok = ({ openModal, setOpenModal, modalData }) => {
                 setData({
                     stok: '',
                 });
-                setOpenModal(false);
+                setOpenModalStok(false);
                 router.get(route('barang.index'));
             },
             onError: () => {
@@ -26,7 +26,7 @@ const ModalStok = ({ openModal, setOpenModal, modalData }) => {
     };
 
     return (
-        <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
+        <Modal dismissible show={openModalStok} onClose={() => setOpenModalStok(false)}>
             <form onSubmit={submit}>
                 <Modal.Header>{modalData.id} - {modalData.nama_barang}</Modal.Header>
                 <Modal.Body>
@@ -44,7 +44,7 @@ const ModalStok = ({ openModal, setOpenModal, modalData }) => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="submit">Simpan</Button>
-                    <Button color="gray" onClick={() => setOpenModal(false)}>
+                    <Button color="gray" onClick={() => setOpenModalStok(false)}>
                         Batal
                     </Button>
                 </Modal.Footer>

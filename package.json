@@ -22,9 +22,11 @@
     "dependencies": {
         "flowbite-react": "^0.10.1",
         "highcharts-react-official": "^3.2.1",
+        "react-barcode": "^1.5.3",
         "react-data-table-component": "^7.6.2",
         "react-number-format": "^5.4.1",
         "react-select": "^5.8.0",
+        "react-to-print": "^2.15.1",
         "styled-components": "^6.1.12",
         "sweetalert2": "^11.12.4",
         "toastr": "^2.1.4"

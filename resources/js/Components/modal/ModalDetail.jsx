@@ -3,7 +3,6 @@ import { NumericFormat } from "react-number-format";
 
 const ModalDetail = ({ openModal, setOpenModal, modalData }) => {
     const pesananDetails = modalData?.pesanan_detail || [];
-    console.log(modalData);
     return (
         <Modal dismissible size="4xl" position="top-center" show={openModal} onClose={() => setOpenModal(false)}>
             <Modal.Header>{modalData?.id}</Modal.Header>

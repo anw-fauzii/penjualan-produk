@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Supplier;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -164,5 +165,11 @@ class BarangController extends Controller
         } else {
             return Inertia::render('Error/404');
         }
+    }
+
+    public function generatePdf($id)
+    {
+        $pdf = Pdf::loadView('barcode', ['code' => $id]);
+        return $pdf->download('barcode.pdf');
     }
 }

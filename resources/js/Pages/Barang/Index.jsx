@@ -2,6 +2,7 @@ import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
 import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
+import ModalBarcode from '@/Components/modal/ModalBarcode';
 import ModalStok from '@/Components/modal/ModalStok';
 import { Head, Link, router } from '@inertiajs/react';
 import { TextInput } from 'flowbite-react';
@@ -12,7 +13,8 @@ import Swal from 'sweetalert2';
 import toastr from 'toastr';
 
 export default function Index(props) {
-    const [openModal, setOpenModal] = useState(false);
+    const [openModalStok, setOpenModalStok] = useState(false);
+    const [openModalBarcode, setOpenModalBarcode] = useState(false);
     const [modalData, setModalData] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredData, setFilteredData] = useState((props.barang || []).map((item, index) => ({
@@ -25,7 +27,16 @@ export default function Index(props) {
 
         if (selectedData) {
             setModalData(selectedData);
-            setOpenModal(true);
+            setOpenModalStok(true);
+        }
+    };
+
+    const handleBarcodeClick = (id) => {
+        const selectedData = props.barang.find(item => item.id === id);
+
+        if (selectedData) {
+            setModalData(selectedData);
+            setOpenModalBarcode(true);
         }
     };
 
@@ -123,6 +134,13 @@ export default function Index(props) {
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
                     </svg>
                 </button>
+                <button onClick={() => handleBarcodeClick(data.id)} type="button" className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center m-1">
+                    <svg className="w-4 h-4 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4V4Zm10 10h6v6h-6v-6Zm0-10h6v6h-6V4Zm-4 10h.01v.01H10V14Zm0 4h.01v.01H10V18Zm-3 2h.01v.01H7V20Zm0-4h.01v.01H7V16Zm-3 2h.01v.01H4V18Zm0-4h.01v.01H4V14Z" />
+                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M7 7h.01v.01H7V7Zm10 10h.01v.01H17V17Z" />
+                    </svg>
+                </button>
+
             </div>
         </div>
     );
@@ -203,7 +221,8 @@ export default function Index(props) {
                         </div>
                     </div>
                 </main>
-                <ModalStok openModal={openModal} setOpenModal={setOpenModal} modalData={modalData} />
+                <ModalStok openModalStok={openModalStok} setOpenModalStok={setOpenModalStok} modalData={modalData} />
+                <ModalBarcode openModalBarcode={openModalBarcode} setOpenModalBarcode={setOpenModalBarcode} modalData={modalData} />
             </div>
             <CustomFooter />
         </div>

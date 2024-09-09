@@ -85,11 +85,9 @@ export default function Create(props) {
                 const totalDiskonFormatted = numberFormat.format(totalDiskon);
                 const totalBelanjaFormatted = numberFormat.format(totalBelanja);
                 const cartRows = cart.map(item => {
-                    // Format harga dan total
                     const hargaJualFormatted = numberFormat.format(item.harga_jual);
                     const totalFormatted = numberFormat.format(item.harga_jual * item.kuantitas);
 
-                    // Generate the main row for the item
                     let itemRow = `
                     <tr>
                         <td>${item.nama_barang}</td>
@@ -99,7 +97,6 @@ export default function Create(props) {
                     </tr>
                 `;
 
-                    // Conditionally add a discount row if applicable
                     if (item.diskon !== 0) {
                         const diskonFormatted = numberFormat.format(((item.harga_jual * (item.diskon / 100)) * item.kuantitas));
                         itemRow += `
@@ -128,9 +125,16 @@ export default function Create(props) {
                             padding: 2mm; /* Padding 2mm */
                             box-sizing: border-box;
                         }
+                        .receipt img {
+                            display: block;
+                            width: 15%; !important;
+                            height: auto; !important;
+                            margin: 0 auto; !important;
+                        }
                         .receipt h1 { 
                             font-size: 14px; 
                             margin-bottom: 5px; 
+                            text-align: center;
                         }
                         .receipt p { 
                             margin: 2px 0; 
@@ -140,7 +144,6 @@ export default function Create(props) {
                             margin-top: 10px; 
                             text-align: center; 
                             font-size: 10px; 
-                            color: #888; 
                         }
                         .receipt table {
                             width: 100%;
@@ -161,7 +164,10 @@ export default function Create(props) {
                             margin: 5px 0;
                         }
                         @media print {
-                            body { margin: 0; }
+                            body { 
+                                margin: 0;
+                                -webkit-print-color-adjust: exact; 
+                            }
                             .receipt { 
                                 width: 80mm; 
                                 border: none; 
@@ -171,20 +177,22 @@ export default function Create(props) {
                                 size: 80mm auto; 
                                 margin: 0; 
                             }
-                            .receipt .footer { display: none; }
                             .receipt img {
-                                display: block;
+                                display: block;!important;
+                                max-width: 100%; !important;
+                                height: auto; !important;
+                                margin: 0 auto; !important;
                             }
                         }
                     </style>
                 </head>
                 <body>
+                    <img src="/storage/logo.png" alt="Logo" />
                     <div class="receipt">
-                            <img src="/logo.png" style="width: 15%; height: auto; text-align:center" />
-                            <h1>Nota Pembelian</h1>
-                        <p><strong>Nama Siswa:</strong>${response.props.flash.message.nama_siswa}</p>
-                        <p><strong>Kelas:</strong>${response.props.flash.message.kelas}</p>
-                        <p><strong>Nama Pengambil:</strong>${response.props.flash.message.nama_pemesan}</p>
+                        <h1>Nota Pembelian</h1>
+                        <p><strong>Nama Siswa:</strong> ${response.props.flash.message.nama_siswa}</p>
+                        <p><strong>Kelas:</strong> ${response.props.flash.message.kelas}</p>
+                        <p><strong>Nama Pengambil:</strong> ${response.props.flash.message.nama_pemesan}</p>
                         <div class="line"></div>
                         <p>${response.props.flash.message.id}</p>
                         <div class="line"></div>
@@ -219,6 +227,7 @@ export default function Create(props) {
                 </body>
                 </html>
                 `;
+
 
 
                 const printWindow = window.open('', '', 'width=800');

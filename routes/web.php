@@ -42,6 +42,7 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::post('/print-pesanan', [App\Http\Controllers\PesanController::class, 'printPesanan']);
     Route::get('laporan-laba-rugi', [App\Http\Controllers\LaporanController::class, 'labarugi']);
     Route::get('laporan-penjualan', [App\Http\Controllers\LaporanController::class, 'penjualan']);
+    Route::get('/generate-pdf/{id}', [App\Http\Controllers\BarangController::class, 'generatePdf']);
 });
 
 require __DIR__ . '/auth.php';
