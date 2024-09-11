@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('total_harga');
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
-            $table->enum('status', ["Selesai", "Pending", "Gagal"]);
+            $table->enum('status', ["Selesai", "Pending", "Gagal", "Retur"]);
             $table->timestamps();
         });
     }

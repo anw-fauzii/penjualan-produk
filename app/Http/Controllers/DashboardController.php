@@ -22,8 +22,25 @@ class DashboardController extends Controller
 
         $lastWeek = $today->copy()->subDays(6);
 
-        $salesData = Pesanan::selectRaw('DATE(created_at) as date, DAYNAME(created_at) as day_name, SUM(total_harga) as total_sales')
-            ->whereBetween('created_at', [$lastWeek, $tomorrow])
+        $hargaDasar = Pesanan::join('pesanan_detail', 'pesanan.id', '=', 'pesanan_detail.pesanan_id')
+            ->join('barang', 'pesanan_detail.barang_id', '=', 'barang.id')
+            ->selectRaw('DATE(pesanan.created_at) as date, DAYNAME(pesanan.created_at) as day_name, SUM(barang.harga_dasar * pesanan_detail.kuantitas) as total_sales')
+            ->whereBetween('pesanan.created_at', [$lastWeek, $tomorrow])
+            ->groupBy('date', 'day_name')
+            ->orderBy('date')
+            ->get();
+        $hargaJual = Pesanan::join('pesanan_detail', 'pesanan.id', '=', 'pesanan_detail.pesanan_id')
+            ->join('barang', 'pesanan_detail.barang_id', '=', 'barang.id')
+            ->selectRaw('DATE(pesanan.created_at) as date, DAYNAME(pesanan.created_at) as day_name, SUM((barang.harga_jual * (1 - (barang.diskon / 100))) * pesanan_detail.kuantitas) as total_sales')
+            ->whereBetween('pesanan.created_at', [$lastWeek, $tomorrow])
+            ->groupBy('date', 'day_name')
+            ->orderBy('date')
+            ->get();
+
+        $laba = Pesanan::join('pesanan_detail', 'pesanan.id', '=', 'pesanan_detail.pesanan_id')
+            ->join('barang', 'pesanan_detail.barang_id', '=', 'barang.id')
+            ->selectRaw('DATE(pesanan.created_at) as date, DAYNAME(pesanan.created_at) as day_name, SUM(((barang.harga_jual * (1 - (barang.diskon / 100))) * pesanan_detail.kuantitas)-(barang.harga_dasar * pesanan_detail.kuantitas)) as total_sales')
+            ->whereBetween('pesanan.created_at', [$lastWeek, $tomorrow])
             ->groupBy('date', 'day_name')
             ->orderBy('date')
             ->get();
@@ -32,7 +49,9 @@ class DashboardController extends Controller
             'barang' => $barang,
             'stok' => $stok,
             'stokKecil' => $stokKecil,
-            'salesData' => $salesData,
+            'hargaDasar' => $hargaDasar,
+            'hargaJual' => $hargaJual,
+            'laba' => $laba,
         ]);
     }
 }

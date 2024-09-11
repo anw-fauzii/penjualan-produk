@@ -9,10 +9,12 @@ import Highcharts from 'highcharts/highstock'
 import HighchartsReact from 'highcharts-react-official'
 
 export default function Dashboard(props) {
-    const { salesData } = props;
+    const { hargaDasar, hargaJual, laba } = props;
 
-    const categories = salesData.map(item => item.day_name);
-    const data = salesData.map(item => parseFloat(item.total_sales));
+    const categories = hargaJual.map(item => item.day_name);
+    const dataJual = hargaJual.map(item => parseFloat(item.total_sales));
+    const dataDasar = hargaDasar.map(item => parseFloat(item.total_sales));
+    const dataLaba = laba.map(item => parseFloat(item.total_sales));
 
     const options = {
         chart: {
@@ -34,12 +36,16 @@ export default function Dashboard(props) {
         },
         series: [
             {
-                name: 'Jumlah Penjualan',
-                data: data
+                name: 'Harga Jual',
+                data: dataJual
             },
             {
-                name: 'Jumlah Penjualan',
-                data: data
+                name: 'Harga Dasar',
+                data: dataDasar
+            },
+            {
+                name: 'Laba Lugi',
+                data: dataLaba
             }
         ]
     };
@@ -51,7 +57,7 @@ export default function Dashboard(props) {
         <div className="flex max-h-screen bg-gray-100 overflow-hidden">
             <Head title="Dashboard" />
             <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-            <div className="flex flex-1 flex-col">
+            <div className="flex flex-1 flex-col mb-11">
                 <CustomNavbar toggleSidebar={toggleSidebar} />
                 <main className="flex-1 p-6 bg-white border-l border-gray-300 mt-16 overflow-auto">
                     <JudulHeader judul="Dashboard" subJudul="Dashboard" />

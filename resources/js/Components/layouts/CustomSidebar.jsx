@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from 'flowbite-react';
-import { HiDocumentReport, HiChartPie, HiInbox, HiShoppingBag, HiLogout, HiShoppingCart } from 'react-icons/hi';
+import { HiBackspace, HiDocumentReport, HiChartPie, HiInbox, HiShoppingBag, HiLogout, HiShoppingCart } from 'react-icons/hi';
 import { Link, usePage } from '@inertiajs/react';
 
 const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
@@ -8,10 +8,12 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
     const [isCollapseMasterOpen, setIsCollapseMasterOpen] = useState(false);
     const [isCollapsePesananOpen, setIsCollapsePesananOpen] = useState(false);
     const [isCollapseLaporanOpen, setIsCollapseLaporanOpen] = useState(false);
+    const [isCollapseReturOpen, setIsCollapseReturOpen] = useState(false);
     useEffect(() => {
         setIsCollapseMasterOpen(url.includes('/supplier') || url.includes('/kategori') || url.includes('/barang'));
         setIsCollapseLaporanOpen(url.includes('/laporan-penjualan') || url.includes('/laporan-laba-rugi'));
         setIsCollapsePesananOpen(url.includes('/pemesanan'));
+        setIsCollapseReturOpen(url.includes('/retur'));
     }, [url]);
 
     return (
@@ -84,6 +86,27 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                             className={url === '/pemesanan' ? 'bg-blue-200' : ''}
                         >
                             List Pesanan
+                        </Sidebar.Item>
+                    </Sidebar.Collapse>
+                    <Sidebar.Collapse
+                        icon={HiBackspace}
+                        label="Retur Barang"
+                        open={isCollapseReturOpen}
+                        className={`hover:bg-blue-100 ${url.includes('/retur/create') || url.includes('/retur') ? 'bg-blue-200' : ''}`}
+                    >
+                        <Sidebar.Item
+                            as={Link}
+                            href="/retur/create"
+                            className={url === '/retur/create' ? 'bg-blue-200' : ''}
+                        >
+                            Tambah
+                        </Sidebar.Item>
+                        <Sidebar.Item
+                            as={Link}
+                            href="/retur"
+                            className={url === '/retur' ? 'bg-blue-200' : ''}
+                        >
+                            List Retur
                         </Sidebar.Item>
                     </Sidebar.Collapse>
                     <Sidebar.Collapse

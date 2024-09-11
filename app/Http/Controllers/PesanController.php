@@ -44,6 +44,7 @@ class PesanController extends Controller
     {
         $cart = $request->input('cart');
         $pesanan = Pesanan::create([
+            'status' => "Selesai",
             'user_id' => Auth::user()->id,
             'nama_pemesan' => $request->namaPemesan,
             'kelas' => $request->kelas,

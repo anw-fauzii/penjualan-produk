@@ -9,12 +9,15 @@ import { NumericFormat } from 'react-number-format';
 import { router } from '@inertiajs/react';
 import toastr from 'toastr';
 import ModalPemesanan from '@/Components/modal/ModalPemesanan';
+import { useEffect } from 'react';
 
 export default function Create(props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [cart, setCart] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [barcodeInput, setBarcodeInput] = useState('');
+    const [inputTimer, setInputTimer] = useState(null);
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
@@ -79,6 +82,17 @@ export default function Create(props) {
                 const totalDiskonFormatted = numberFormat.format(totalDiskon);
                 const totalBelanjaFormatted = numberFormat.format(totalBelanja);
 
+                const createdAt = new Date(response.props.flash.message.created_at);
+
+                // Extract and format date and time components
+                const day = createdAt.getDate().toString().padStart(2, '0');
+                const month = (createdAt.getMonth() + 1).toString().padStart(2, '0');
+                const year = createdAt.getFullYear();
+                const hours = createdAt.getHours().toString().padStart(2, '0');
+                const minutes = createdAt.getMinutes().toString().padStart(2, '0');
+
+                const formattedDateTime = `${day}/${month}/${year} ${hours}:${minutes}`;
+
                 const cartRows = cart.map(item => {
                     const hargaJualFormatted = numberFormat.format(item.harga_jual);
                     const totalFormatted = numberFormat.format(item.harga_jual * item.kuantitas);
@@ -113,8 +127,9 @@ export default function Create(props) {
                             .receipt { width: 80mm; margin: 0; padding: 4mm; box-sizing: border-box; }
                             .receipt img { display: block; width: 15%; height: auto; margin: 0 auto; }
                             .receipt h1 { font-size: 14px; margin-bottom: 5px; text-align: center; }
+                            .receipt .tanggal { display: flex; justify-content: space-between; align-items: center; }
                             .receipt p { margin: 2px 0; font-size: 12px; }
-                            .receipt .footer { margin-top: 10px; text-align: center; font-size: 10px;line-height: 1.5; }
+                            .receipt .footer { margin-top: 10px; text-align: center; font-size: 10px; line-height: 1.5; }
                             .receipt table { width: 100%; border-collapse: collapse; font-size: 10px; }
                             .receipt th, .receipt td { padding: 1mm; text-align: left; }
                             .receipt th { background-color: #f4f4f4; }
@@ -123,21 +138,23 @@ export default function Create(props) {
                                 body { margin: 0; -webkit-print-color-adjust: exact; }
                                 .receipt { width: 80mm; border: none; box-shadow: none; }
                                 @page { size: 80mm auto; margin: 0; }
-                                .receipt img { justify-content: center;align-items: center;max-width: 100%; height: auto; margin: 0 auto; }
+                                .receipt img { justify-content: center; align-items: center; max-width: 100%; height: auto; margin: 0 auto; }
                             }
                         </style>
                     </head>
                     <body>
-                        
                         <div class="receipt">
-                        <img src="/storage/Untitled.png" width="8%" alt="Logo" />
+                            <img src="/storage/Untitled.png" width="8%" alt="Logo" />
                             <h1>Nota Pembelian</h1>
                             <div class="line"></div>
                             <p><strong>Siswa:</strong> ${response.props.flash.message.nama_siswa}</p>
                             <p><strong>Kelas:</strong> ${response.props.flash.message.kelas}</p>
                             <p><strong>Pengambil:</strong> ${response.props.flash.message.nama_pemesan}</p>
                             <div class="line"></div>
-                            <p>${response.props.flash.message.id}</p>
+                            <div class="tanggal">
+                                <p>${response.props.flash.message.id}</p>
+                                <p>${formattedDateTime}</p>
+                            </div>
                             <div class="line"></div>
                             <table>
                                 <thead>
@@ -145,13 +162,18 @@ export default function Create(props) {
                                         <th style="text-align:center;">Item</th>
                                         <th style="text-align:center;">Qty</th>
                                         <th style="text-align:center;">Harga</th>
-                                        <th style="text-align:center;">Subtotal</th>
+                                        <th style="text-align:center;">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${cartRows}
+                                </tbody>
+                            </table>
+                            <div class="line"></div>
+                            <table>
+                                <tbody>
                                     <tr>
-                                        <td colspan="3" style="text-align:right;">Total Item</td>
+                                        <td colspan="3" style="text-align:right;">Subtotal</td>
                                         <td style="text-align:right;">${totalHargaFormatted}</td>
                                     </tr>
                                     <tr>
@@ -200,6 +222,34 @@ export default function Create(props) {
             }
         });
     };
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            clearTimeout(inputTimer);
+
+            setBarcodeInput(prevInput => {
+                const newInput = prevInput + event.key;
+
+                const timer = setTimeout(() => {
+                    const item = props.barang.find(b => b.id === newInput);
+                    if (item) {
+                        addToCart(item);
+                    }
+                    setBarcodeInput('');
+                }, 200);
+
+                setInputTimer(timer);
+                return newInput;
+            });
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            clearTimeout(inputTimer); // Clear the timer when component unmounts
+        };
+    }, [props.barang, inputTimer]);
 
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -271,7 +321,7 @@ export default function Create(props) {
                                         <th className="p-2 border">Kuantitas</th>
                                         <th className="p-2 border">Harga</th>
                                         <th className="p-2 border">Diskon</th>
-                                        <th className="p-2 border">Subtotal</th>
+                                        <th className="p-2 border">Total</th>
                                         <th className="p-2 border">Aksi</th>
                                     </tr>
                                 </thead>

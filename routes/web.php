@@ -43,6 +43,8 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::get('laporan-laba-rugi', [App\Http\Controllers\LaporanController::class, 'labarugi']);
     Route::get('laporan-penjualan', [App\Http\Controllers\LaporanController::class, 'penjualan']);
     Route::get('/generate-pdf/{id}', [App\Http\Controllers\BarangController::class, 'generatePdf']);
+    Route::resource('retur', App\Http\Controllers\ReturController::class)->except(['update', 'store']);
+    Route::post('retur/{id}', [App\Http\Controllers\ReturController::class, 'store']);
 });
 
 require __DIR__ . '/auth.php';

@@ -43,15 +43,15 @@
 <body>
     <div class="container">
         <table>
-            @for ($i = 0; $i < 16; $i++)
+            @for ($i = 0; $i < 44; $i++)
                 @if ($i % 4 == 0 && $i != 0)
-                    </tr><tr> <!-- Create a new row every 4 items -->
+                    </tr><tr>
                 @endif
                 <td>
                     <div class="barcode-item">
                         <div class="barcode-image">
                             @php
-                                echo DNS1D::getBarcodeHTML($code, 'C128', 1, 60); // Generate barcode with different codes
+                                echo DNS1D::getBarcodeHTML($code, 'C128', 1, 60);
                             @endphp
                         </div>
                         <div class="barcode-text">{{ $code }}</div>
