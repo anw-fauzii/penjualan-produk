@@ -2,12 +2,11 @@ import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
 import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
-import ModalDetail from '@/Components/modal/ModalDetail';
+import ModalRetur from '@/Components/modal/ModalRetur';
 import { Head, Link, router } from '@inertiajs/react';
 import { TextInput } from 'flowbite-react';
 import { useState } from 'react';
 import DataTable from 'react-data-table-component';
-import { NumericFormat } from 'react-number-format';
 import Swal from 'sweetalert2';
 import toastr from 'toastr';
 
@@ -54,29 +53,22 @@ export default function Index(props) {
             width: '15%',
         },
         {
-            name: 'Nama Penerima',
-            selector: row => row.nama_pemesan,
+            name: 'Kode Pesanan',
+            selector: row => row.pesanan_id,
             sortable: true,
             width: '17%'
         },
         {
-            name: 'Nama retur',
-            selector: row => row.nama_siswa + " (" + row.kelas + ")",
+            name: 'Pemesan Pemesan',
+            selector: row => row.pesanan.nama_pemesan,
             sortable: true,
             width: '20%',
         },
         {
-            name: 'Harga Jual',
-            selector: row => (
-                <NumericFormat
-                    value={row.total_harga}
-                    displayType={'text'}
-                    thousandSeparator={true}
-                    prefix={'Rp. '}
-                />
-            ),
+            name: 'Siswa',
+            selector: row => row.pesanan.nama_siswa + " (" + row.pesanan.kelas + ")",
             sortable: true,
-            width: '14%'
+            width: '20%',
         },
     ];
 
@@ -181,7 +173,7 @@ export default function Index(props) {
                         </div>
                     </div>
                 </main>
-                <ModalDetail openModal={openModal} setOpenModal={setOpenModal} modalData={modalData} />
+                <ModalRetur openModal={openModal} setOpenModal={setOpenModal} modalData={modalData} />
             </div>
             <CustomFooter />
         </div>
