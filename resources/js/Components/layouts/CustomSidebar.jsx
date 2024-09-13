@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from 'flowbite-react';
 import { HiBackspace, HiDocumentReport, HiChartPie, HiInbox, HiShoppingBag, HiLogout, HiShoppingCart } from 'react-icons/hi';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 
 const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
     const { url } = usePage();
@@ -16,6 +16,10 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
         setIsCollapseReturOpen(url.includes('/retur'));
     }, [url]);
 
+    const handleLogout = () => {
+        router.post('/logout');
+        router.clearHistory();
+    };
     return (
         <Sidebar
             aria-label="Sidebar with multi-level dropdown example"
@@ -132,8 +136,7 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                     </Sidebar.Collapse>
                     <Sidebar.Item
                         as={Link}
-                        href="/logout"
-                        method="POST"
+                        onClick={handleLogout}
                         icon={HiLogout}
                         className={`hover:bg-blue-100 ${url === '/signin' ? 'bg-blue-200' : ''}`}
                     >
