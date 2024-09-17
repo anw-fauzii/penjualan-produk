@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
@@ -9,42 +9,44 @@ import { NumericFormat } from 'react-number-format';
 import { router } from '@inertiajs/react';
 import toastr from 'toastr';
 import ModalPemesanan from '@/Components/modal/ModalPemesanan';
-import { useEffect } from 'react';
 
 export default function Create(props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [cart, setCart] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [barcodeInput, setBarcodeInput] = useState('');
-    const [inputTimer, setInputTimer] = useState(null);
+    const barcodeInputRef = useRef(null);
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
     const addToCart = (item) => {
-        const existingItem = cart.find(cartItem => cartItem.id === item.id);
-        if (existingItem) {
-            setCart(cart.map(cartItem =>
-                cartItem.id === item.id
-                    ? { ...cartItem, kuantitas: cartItem.kuantitas + 1 }
-                    : cartItem
-            ));
-        } else {
-            setCart([...cart, { ...item, kuantitas: 1 }]);
-        }
+        setCart(prevCart => {
+            const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+            if (existingItem) {
+                return prevCart.map(cartItem =>
+                    cartItem.id === item.id
+                        ? { ...cartItem, kuantitas: cartItem.kuantitas + 1 }
+                        : cartItem
+                );
+            } else {
+                return [...prevCart, { ...item, kuantitas: 1 }];
+            }
+        });
     };
 
     const handleQuantityChange = (id, delta) => {
-        setCart(cart.map(item =>
-            item.id === id
-                ? { ...item, kuantitas: Math.max(1, item.kuantitas + delta) }
-                : item
-        ));
+        setCart(prevCart =>
+            prevCart.map(item =>
+                item.id === id
+                    ? { ...item, kuantitas: Math.max(1, item.kuantitas + delta) }
+                    : item
+            )
+        );
     };
 
     const handleRemoveFromCart = (id) => {
-        setCart(cart.filter(item => item.id !== id));
+        setCart(prevCart => prevCart.filter(item => item.id !== id));
     };
 
     const calculateTotals = () => {
@@ -225,31 +227,34 @@ export default function Create(props) {
 
     useEffect(() => {
         const handleKeyDown = (event) => {
-            clearTimeout(inputTimer);
-
-            setBarcodeInput(prevInput => {
-                const newInput = prevInput + event.key;
-
-                const timer = setTimeout(() => {
-                    const item = props.barang.find(b => b.id === newInput);
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const barcode = barcodeInputRef.current.value.trim();
+                if (barcode) {
+                    const item = props.barang.find(b => b.id === barcode);
                     if (item) {
                         addToCart(item);
+                        // Clear the input field after scanning
+                        barcodeInputRef.current.value = '';
+                    } else {
+                        toastr.warning('Item tidak ditemukan.');
                     }
-                    setBarcodeInput('');
-                }, 200);
-
-                setInputTimer(timer);
-                return newInput;
-            });
+                }
+            }
         };
 
-        window.addEventListener('keydown', handleKeyDown);
+        const inputElement = barcodeInputRef.current;
+        if (inputElement) {
+            inputElement.addEventListener('keydown', handleKeyDown);
+        }
 
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            clearTimeout(inputTimer); // Clear the timer when component unmounts
+            if (inputElement) {
+                inputElement.removeEventListener('keydown', handleKeyDown);
+            }
         };
-    }, [props.barang, inputTimer]);
+    }, [props.barang]);
+
 
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -267,6 +272,17 @@ export default function Create(props) {
                     />
 
                     <div className="bg-white shadow-lg rounded-lg p-4 md:p-6 border border-gray-200">
+                        {/* Barcode Input Field */}
+                        <div className="mb-4">
+                            <input
+                                type="text"
+                                ref={barcodeInputRef}
+                                placeholder="Scan barcode..."
+                                className="p-2 border border-gray-300 rounded w-full"
+
+                            />
+                        </div>
+
                         {/* Search Bar */}
                         <div className="mb-4">
                             <input
@@ -311,128 +327,96 @@ export default function Create(props) {
                             </div>
                         )}
 
-                        {/* Cart Table */}
-                        <div className="mb-4 overflow-x-auto">
-                            <table className="w-full border border-gray-300">
-                                <thead>
-                                    <tr className="bg-gray-200">
-                                        <th className="p-2 border">No</th>
-                                        <th className="p-2 border">Nama Barang</th>
-                                        <th className="p-2 border">Kuantitas</th>
-                                        <th className="p-2 border">Harga</th>
-                                        <th className="p-2 border">Diskon</th>
-                                        <th className="p-2 border">Total</th>
-                                        <th className="p-2 border">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {cart.map((item, index) => (
-                                        <tr key={item.id}>
-                                            <td className="p-2 border">{index + 1}</td>
-                                            <td className="p-2 border">{item.id} - {item.nama_barang}</td>
-                                            <td className="p-2 border">
-                                                <button
-                                                    onClick={() => handleQuantityChange(item.id, -1)}
-                                                    className="p-1 border bg-gray-200"
-                                                >
-                                                    -
-                                                </button>
-                                                <span className="px-2">{item.kuantitas}</span>
-                                                <button
-                                                    onClick={() => handleQuantityChange(item.id, 1)}
-                                                    className="p-1 border bg-gray-200"
-                                                >
-                                                    +
-                                                </button>
-                                            </td>
-                                            <td className="p-2 border">
-                                                <NumericFormat
-                                                    value={item.harga_jual}
-                                                    displayType={'text'}
-                                                    thousandSeparator={true}
-                                                    prefix={'Rp. '}
-                                                />
-                                            </td>
-                                            <td className="p-2 border">
-                                                <NumericFormat
-                                                    value={((item.harga_jual * (item.diskon / 100)) * item.kuantitas)}
-                                                    displayType={'text'}
-                                                    thousandSeparator={true}
-                                                    prefix={'Rp. '}
-                                                />
-                                            </td>
-                                            <td className="p-2 border">
-                                                <NumericFormat
-                                                    value={((item.harga_jual - (item.harga_jual * (item.diskon / 100))) * item.kuantitas)}
-                                                    displayType={'text'}
-                                                    thousandSeparator={true}
-                                                    prefix={'Rp. '}
-                                                />
-                                            </td>
-                                            <td className="p-2 border">
-                                                <button
-                                                    onClick={() => handleRemoveFromCart(item.id)}
-                                                    className="bg-red-500 text-white px-2 py-1 rounded"
-                                                >
-                                                    <HiOutlineTrash />
-                                                </button>
-                                            </td>
+                        {/* Cart Items */}
+                        {cart.length > 0 && (
+                            <div className="bg-gray-50 p-4 mt-4 rounded-lg shadow-md border border-gray-200">
+                                <h2 className="text-lg font-semibold mb-4">Keranjang</h2>
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr>
+                                            <th className="border-b px-4 py-2">Item</th>
+                                            <th className="border-b px-4 py-2">Qty</th>
+                                            <th className="border-b px-4 py-2">Harga</th>
+                                            <th className="border-b px-4 py-2">Total</th>
+                                            <th className="border-b px-4 py-2">Aksi</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {cart.map(item => (
+                                            <tr key={item.id}>
+                                                <td className="border-b px-4 py-2">{item.nama_barang}</td>
+                                                <td className="border-b px-4 py-2">
+                                                    <button
+                                                        onClick={() => handleQuantityChange(item.id, -1)}
+                                                        disabled={item.kuantitas <= 1}
+                                                        className="bg-red-500 text-white px-2 py-1 rounded mr-2"
+                                                    >
+                                                        -
+                                                    </button>
+                                                    {item.kuantitas}
+                                                    <button
+                                                        onClick={() => handleQuantityChange(item.id, 1)}
+                                                        className="bg-green-500 text-white px-2 py-1 rounded ml-2"
+                                                    >
+                                                        +
+                                                    </button>
+                                                </td>
+                                                <td className="border-b px-4 py-2">
+                                                    <NumericFormat
+                                                        value={item.harga_jual}
+                                                        displayType={'text'}
+                                                        thousandSeparator={true}
+                                                        prefix={'Rp. '}
+                                                    />
+                                                </td>
+                                                <td className="border-b px-4 py-2">
+                                                    <NumericFormat
+                                                        value={item.harga_jual * item.kuantitas}
+                                                        displayType={'text'}
+                                                        thousandSeparator={true}
+                                                        prefix={'Rp. '}
+                                                    />
+                                                </td>
+                                                <td className="border-b px-4 py-2">
+                                                    <button
+                                                        onClick={() => handleRemoveFromCart(item.id)}
+                                                        className="bg-red-500 text-white px-2 py-1 rounded"
+                                                    >
+                                                        <HiOutlineTrash />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
 
-                        {/* Total Harga */}
-                        <div className="mt-4">
-                            <div className="flex justify-between mb-2">
-                                <span className="font-semibold">Subtotal:</span>
-                                <span><NumericFormat
-                                    value={totalHarga}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'Rp. '}
-                                /></span>
-                            </div>
-                            <div className="flex justify-between mb-2">
-                                <span className="font-semibold">Diskon:</span>
-                                <span><NumericFormat
-                                    value={diskon}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'Rp. '}
-                                /></span>
-                            </div>
-                            <div className="flex justify-between font-bold">
-                                <span>Total:</span>
-                                <span><NumericFormat
-                                    value={total}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'Rp. '}
-                                /></span>
-                            </div>
-                        </div>
+                                <div className="mt-4">
+                                    <p><strong>Subtotal:</strong> <NumericFormat value={subtotal} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                    <p><strong>Total Diskon:</strong> <NumericFormat value={diskon} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                    <p><strong>Total Belanja:</strong> <NumericFormat value={total} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                </div>
 
-                        <div className="mt-4">
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
-                            >
-                                Buat Pesanan
-                            </button>
-                        </div>
+                                <button
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                                >
+                                    Buat Pemesanan
+                                </button>
+                            </div>
+                        )}
                     </div>
+
+                    {isModalOpen && (
+                        <ModalPemesanan
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            onSubmit={placeOrder}
+                        />
+                    )}
                 </main>
+
+                <CustomFooter />
             </div>
-
-            <CustomFooter />
-
-            <ModalPemesanan
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={placeOrder}
-            />
         </div>
     );
 }

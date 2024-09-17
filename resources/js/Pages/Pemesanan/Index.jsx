@@ -66,7 +66,7 @@ export default function Index(props) {
             width: '20%',
         },
         {
-            name: 'Harga Jual',
+            name: 'Total Harga',
             selector: row => (
                 <NumericFormat
                     value={row.total_harga}
