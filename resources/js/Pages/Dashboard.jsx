@@ -114,9 +114,9 @@ export default function Dashboard(props) {
                                             <Table.Row key={i} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                                 <Table.Cell>{i + 1}</Table.Cell>
                                                 <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                    {data.nama_barang}
+                                                    {data.barang.nama_barang} <strong>({data.ukuran})</strong>
                                                 </Table.Cell>
-                                                <Table.Cell>{data.unit}</Table.Cell>
+                                                <Table.Cell>{data.barang.unit}</Table.Cell>
                                                 <Table.Cell>{data.stok}</Table.Cell>
                                             </Table.Row>
                                         ))}

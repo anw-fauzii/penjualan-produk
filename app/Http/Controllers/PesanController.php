@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\BarangUkuran;
 use App\Models\Pesanan;
 use App\Models\PesananDetail;
 use App\Models\User;
@@ -16,7 +17,7 @@ class PesanController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang')->get();
+            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')->get();
             return Inertia::render('Pemesanan/Index', [
                 'title' => "Daftar Pesanan",
                 'pesanan' => $pesanan,
@@ -30,7 +31,7 @@ class PesanController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $barang = Barang::All();
+            $barang = BarangUkuran::with('barang')->get();
             return Inertia('Pemesanan/Create', [
                 'title' => "Pemesanan",
                 'barang' => $barang
@@ -57,13 +58,13 @@ class PesanController extends Controller
         foreach ($cart as $data) {
             $pesananDetail = PesananDetail::create([
                 'pesanan_id' => $pesanan->id,
-                'barang_id' => $data['id'],
+                'barang_ukuran_id' => $data['id'],
                 'kuantitas' => $data['kuantitas'],
                 'harga' => $data['harga_jual'],
                 'diskon' => $data['diskon'],
                 'subtotal' => ($data['harga_jual'] * $data['kuantitas']) - (($data['harga_jual'] * ($data['diskon'] / 100)) * $data['kuantitas']),
             ]);
-            $barang = Barang::find($data['id']);
+            $barang = BarangUkuran::find($data['id']);
             $barang->update([
                 'stok' => $barang->stok - $data['kuantitas'],
             ]);

@@ -6,7 +6,7 @@ const ModalStok = ({ openModalStok, setOpenModalStok, modalData }) => {
     const { data, setData, post, errors } = useForm({
         stok: '',
     });
-
+    console.log(modalData)
     const submit = (e) => {
         e.preventDefault();
         post(`/update-stok/${modalData.id}`, {
@@ -28,7 +28,7 @@ const ModalStok = ({ openModalStok, setOpenModalStok, modalData }) => {
     return (
         <Modal dismissible show={openModalStok} onClose={() => setOpenModalStok(false)}>
             <form onSubmit={submit}>
-                <Modal.Header>{modalData.id} - {modalData.nama_barang}</Modal.Header>
+                <Modal.Header>{modalData.id} - {modalData?.barang?.nama_barang || 'Nama Barang Tidak Tersedia'} ({modalData.ukuran})</Modal.Header>
                 <Modal.Body>
                     <div className="mb-4">
                         <label htmlFor="stok" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white mr-14 mt-2">Stok</label>

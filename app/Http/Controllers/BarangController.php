@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\BarangUkuran;
 use App\Models\Kategori;
 use App\Models\Supplier;
 use App\Models\User;
@@ -51,15 +52,11 @@ class BarangController extends Controller
             $validator = $request->validate([
                 'nama_barang' => 'required',
                 'kategori_id' => 'required',
-                'harga_dasar' => 'required',
-                'harga_jual' => 'required',
                 'supplier_id' => 'required',
                 'unit' => 'required',
             ], [
                 'nama_barang.required' => "Nama barang harus diisi",
                 'kategori_id.required' => "Nama barang harus diisi",
-                'harga_dasar.required' => "Nama barang harus diisi",
-                'harga_jual.required' => "Nama barang harus diisi",
                 'supplier_id.required' => "Nama barang harus diisi",
                 'unit.required' => "Nama barang harus diisi",
             ]);
@@ -71,10 +68,7 @@ class BarangController extends Controller
             $barang->kategori_id = $request->kategori_id;
             $barang->supplier_id = $request->supplier_id;
             $barang->nama_barang = $request->nama_barang;
-            $barang->harga_dasar = $request->harga_dasar;
-            $barang->harga_jual = $request->harga_jual;
             $barang->unit = $request->unit;
-            $barang->diskon = $request->diskon;
             $barang->save();
             return to_route('barang.index');
         } else {
@@ -85,9 +79,20 @@ class BarangController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Barang $barang)
+    public function show($id)
     {
-        //
+        $user = User::find(Auth::user()->id);
+        if ($user->hasRole('admin')) {
+            $nama = Barang::find($id);
+            $barang = BarangUkuran::where('barang_id', $id)->with('barang')->get();
+            return Inertia::render('Ukuran/Show', [
+                'title' => "Daftar Ukuran " . $nama->nama_barang,
+                'barang' => $barang,
+                'barang_id' => $id
+            ]);
+        } else {
+            return Inertia::render('Error/404');
+        }
     }
 
     /**
@@ -121,15 +126,11 @@ class BarangController extends Controller
             $validator = $request->validate([
                 'nama_barang' => 'required',
                 'kategori_id' => 'required',
-                'harga_dasar' => 'required',
-                'harga_jual' => 'required',
                 'supplier_id' => 'required',
                 'unit' => 'required',
             ], [
                 'nama_barang.required' => "Nama barang harus diisi",
                 'kategori_id.required' => "Nama barang harus diisi",
-                'harga_dasar.required' => "Nama barang harus diisi",
-                'harga_jual.required' => "Nama barang harus diisi",
                 'supplier_id.required' => "Nama barang harus diisi",
                 'unit.required' => "Nama barang harus diisi",
             ]);
@@ -141,10 +142,7 @@ class BarangController extends Controller
             $barang->kategori_id = $request->kategori_id;
             $barang->supplier_id = $request->supplier_id;
             $barang->nama_barang = $request->nama_barang;
-            $barang->harga_dasar = $request->harga_dasar;
-            $barang->harga_jual = $request->harga_jual;
             $barang->unit = $request->unit;
-            $barang->diskon = $request->diskon;
             $barang->update();
             return to_route('barang.index');
         } else {

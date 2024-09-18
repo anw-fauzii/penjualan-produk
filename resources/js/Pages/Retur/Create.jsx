@@ -139,7 +139,7 @@ export default function Create(props) {
                                             {filteredPesanan.pesanan_detail.map(detail => (
                                                 <tr key={detail.id}>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        {detail.barang.nama_barang}
+                                                        {detail.barang_ukuran.barang.nama_barang}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         {detail.kuantitas}

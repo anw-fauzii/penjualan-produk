@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('pesanan_id');
             $table->foreign('pesanan_id')->references('id')->on('pesanan');
-            $table->string('barang_id');
-            $table->foreign('barang_id')->references('id')->on('barang');
+            $table->string('barang_ukuran_id');
+            $table->foreign('barang_ukuran_id')->references('id')->on('barang_ukuran');
             $table->integer('kuantitas');
             $table->integer('harga');
             $table->integer('diskon');

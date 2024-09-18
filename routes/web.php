@@ -45,6 +45,9 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::get('/generate-pdf/{id}', [App\Http\Controllers\BarangController::class, 'generatePdf']);
     Route::resource('retur', App\Http\Controllers\ReturController::class)->except(['update', 'store']);
     Route::post('retur/{id}', [App\Http\Controllers\ReturController::class, 'store']);
+    Route::resource('ukuran-barang', App\Http\Controllers\BarangUkuranController::class)->except(['update', 'create']);
+    Route::post('edit-ukuran-barang/{id}', [App\Http\Controllers\BarangUkuranController::class, 'update']);
+    Route::get('ukuran-barang/create/{id}', [App\Http\Controllers\BarangUkuranController::class, 'create'])->name('ukuran-barang.create');
 });
 
 require __DIR__ . '/auth.php';

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Barang extends Model
 {
@@ -22,13 +23,8 @@ class Barang extends Model
         'nama_barang',
         'kategori_id',
         'supplier_id',
-        'harga_jual',
-        'harga_dasar',
         'unit',
         'foto',
-        'diskon',
-        'stok',
-        'barcode'
     ];
     public function kategori(): BelongsTo
     {
@@ -37,6 +33,10 @@ class Barang extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+    public function ukuran(): HasMany
+    {
+        return $this->hasMany(BarangUkuran::class);
     }
 
     public static function boot()
@@ -50,12 +50,12 @@ class Barang extends Model
                 ->value('id');
 
             if ($latestCode) {
-                $sequence = intval(substr($latestCode, -3)) + 1;
+                $sequence = intval(substr($latestCode, -2)) + 1;
             } else {
                 $sequence = 1;
             }
 
-            $model->id = "PRD-" . $datePrefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+            $model->id = $model->unit . "-" . $datePrefix . str_pad($sequence, 2, '0', STR_PAD_LEFT);
         });
     }
 }

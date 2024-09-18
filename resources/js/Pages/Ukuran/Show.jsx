@@ -2,6 +2,7 @@ import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
 import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
+import ModalBarcode from '@/Components/modal/ModalBarcode';
 import ModalStok from '@/Components/modal/ModalStok';
 import { Head, Link, router } from '@inertiajs/react';
 import { TextInput } from 'flowbite-react';
@@ -11,9 +12,9 @@ import { NumericFormat } from 'react-number-format';
 import Swal from 'sweetalert2';
 import toastr from 'toastr';
 
-export default function Index(props) {
-    console.log(props)
-    const [openModal, setOpenModal] = useState(false);
+export default function Show(props) {
+    const [openModalStok, setOpenModalStok] = useState(false);
+    const [openModalBarcode, setOpenModalBarcode] = useState(false);
     const [modalData, setModalData] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredData, setFilteredData] = useState((props.barang || []).map((item, index) => ({
@@ -26,7 +27,16 @@ export default function Index(props) {
 
         if (selectedData) {
             setModalData(selectedData);
-            setOpenModal(true);
+            setOpenModalStok(true);
+        }
+    };
+
+    const handleBarcodeClick = (id) => {
+        const selectedData = props.barang.find(item => item.id === id);
+
+        if (selectedData) {
+            setModalData(selectedData);
+            setOpenModalBarcode(true);
         }
     };
 
@@ -51,33 +61,62 @@ export default function Index(props) {
             width: '8%',
         },
         {
-            name: 'Nama Barang',
-            selector: row => row.barang_ukuran.barang.nama_barang + " (" + row.barang_ukuran.ukuran + ")",
+            name: 'Kode',
+            selector: row => row.id,
             sortable: true,
-            width: '25%'
+            width: '15%',
+        },
+        {
+            name: 'Ukuran',
+            selector: row => row.ukuran,
+            sortable: true,
+            width: '15%',
+        },
+        {
+            name: 'Harga Jual',
+            selector: row => (
+                <NumericFormat
+                    value={row.harga_jual}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    prefix={'Rp. '}
+                />
+            ),
+            sortable: true,
+            width: '14%'
+        },
+        {
+            name: 'Harga Beli',
+            selector: row => (
+                <NumericFormat
+                    value={row.harga_dasar}
+                    displayType={'text'}
+                    thousandSeparator={true}
+                    prefix={'Rp. '}
+                />
+            ),
+            sortable: true,
+            width: '14%'
+        },
+        {
+            name: 'Diskon',
+            selector: row => row.diskon + " %",
+            sortable: true,
+            width: '10%'
         },
         {
             name: 'Stok',
             selector: row => row.stok,
             sortable: true,
-            width: '15%'
+            width: '10%'
         },
-        {
-            name: 'Tanggal',
-            selector: row => new Intl.DateTimeFormat('id-ID', {
-                dateStyle: 'short',
-                timeStyle: 'short'
-            }).format(new Date(row.created_at)),
-            sortable: true,
-            width: '22%'
-        }
 
     ];
 
     const ExpandedComponent = ({ data }) => (
         <div className="p-4">
             <div className="flex justify-start">
-                <Link replace href={route('barang.edit', data.id)}>
+                <Link replace href={route('ukuran-barang.edit', data.id)}>
                     <button type="button" className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center m-1">
                         <svg className="w-4 h-4 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                             <path d="M12.687 14.408a3.01 3.01 0 0 1-1.533.821l-3.566.713a3 3 0 0 1-3.53-3.53l.713-3.566a3.01 3.01 0 0 1 .821-1.533L10.905 2H2.167A2.169 2.169 0 0 0 0 4.167v11.666A2.169 2.169 0 0 0 2.167 18h11.666A2.169 2.169 0 0 0 16 15.833V11.1l-3.313 3.308Zm5.53-9.065.546-.546a2.518 2.518 0 0 0 0-3.56 2.576 2.576 0 0 0-3.559 0l-.547.547 3.56 3.56Z" />
@@ -95,6 +134,13 @@ export default function Index(props) {
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
                     </svg>
                 </button>
+                <button onClick={() => handleBarcodeClick(data.id)} type="button" className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center m-1">
+                    <svg className="w-4 h-4 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4V4Zm10 10h6v6h-6v-6Zm0-10h6v6h-6V4Zm-4 10h.01v.01H10V14Zm0 4h.01v.01H10V18Zm-3 2h.01v.01H7V20Zm0-4h.01v.01H7V16Zm-3 2h.01v.01H4V18Zm0-4h.01v.01H4V14Z" />
+                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M7 7h.01v.01H7V7Zm10 10h.01v.01H17V17Z" />
+                    </svg>
+                </button>
+
             </div>
         </div>
     );
@@ -114,7 +160,7 @@ export default function Index(props) {
             cancelButtonText: 'Batal',
         }).then((result) => {
             if (result.isConfirmed) {
-                router.delete(`/barang/${id}`, {
+                router.delete(`/ukuran-barang/${id}`, {
                     onSuccess: () => {
                         toastr.success('Data Berhasil Dihapus', 'Sukses!');
                         router.get(route('barang.index'));
@@ -143,6 +189,14 @@ export default function Index(props) {
                     />
                     <div className="bg-white shadow-lg rounded-lg p-4 md:p-6 border border-gray-200 relative">
                         <div className="flex flex-col md:flex-row justify-between mb-4 space-y-4 md:space-y-0 md:space-x-4">
+                            <Link replace href={route('ukuran-barang.create', props.barang_id)}>
+                                <button type="button" className="flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
+                                    <svg className="w-[14px] h-[14px] md:w-auto text-center mr-2 mt-0.5 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 1v16M1 9h16" />
+                                    </svg>
+                                    <span className='flex'>Tambah </span>
+                                </button>
+                            </Link>
                             <div className="flex items-center w-full md:w-auto">
                                 <TextInput
                                     value={searchTerm}
@@ -159,7 +213,7 @@ export default function Index(props) {
                                     data={filteredData}
                                     pagination
                                     fixedHeader
-                                    fixedHeaderScrollHeight="300px"
+                                    fixedHeaderScrollHeight="500px"
                                     expandableRows
                                     expandableRowsComponent={ExpandedComponent}
                                 />
@@ -167,7 +221,8 @@ export default function Index(props) {
                         </div>
                     </div>
                 </main>
-                <ModalStok openModal={openModal} setOpenModal={setOpenModal} modalData={modalData} />
+                <ModalStok openModalStok={openModalStok} setOpenModalStok={setOpenModalStok} modalData={modalData} />
+                <ModalBarcode openModalBarcode={openModalBarcode} setOpenModalBarcode={setOpenModalBarcode} modalData={modalData} />
             </div>
             <CustomFooter />
         </div>

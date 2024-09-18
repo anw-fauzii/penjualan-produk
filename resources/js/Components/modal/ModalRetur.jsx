@@ -20,7 +20,7 @@ const ModalRetur = ({ openModal, setOpenModal, modalData }) => {
                             {pesananDetails.map((data, i) => (
                                 <Table.Row key={i} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                     <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                        {data.pesanan_detail.barang?.nama_barang || 'N/A'}
+                                        {data.pesanan_detail.barang_ukuran?.barang?.nama_barang || 'N/A'} <strong>({data.pesanan_detail.barang_ukuran?.ukuran || 'N/A'})</strong>
                                     </Table.Cell>
                                     <Table.Cell>{data.kuantitas || 0}</Table.Cell>
                                     <Table.Cell>
@@ -41,7 +41,7 @@ const ModalRetur = ({ openModal, setOpenModal, modalData }) => {
                                     </Table.Cell>
                                     <Table.Cell>
                                         <NumericFormat
-                                            value={data.pesanan_detail.subtotal || 0}
+                                            value={((data.pesanan_detail.harga || 0) * (data.kuantitas || 0)) - (((data.pesanan_detail.harga || 0) * (data.pesanan_detail.diskon || 0) / 100) * (data.kuantitas || 0))}
                                             displayType={'text'}
                                             thousandSeparator={true}
                                             prefix={'Rp. '}

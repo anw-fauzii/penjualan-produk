@@ -17,7 +17,7 @@ class ReturController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $retur = Retur::with('retur_detail', 'pesanan', 'retur_detail.pesanan_detail.barang', 'retur_detail.pesanan_detail')
+            $retur = Retur::with('retur_detail', 'pesanan', 'retur_detail.pesanan_detail.barang_ukuran.barang', 'retur_detail.pesanan_detail')
                 ->get();
             return Inertia::render('Retur/Index', [
                 'title' => "Retur Barang",
@@ -32,7 +32,7 @@ class ReturController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang')
+            $pesanan = Pesanan::with(['pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang'])
                 ->get();
             return Inertia::render('Retur/Create', [
                 'title' => "Retur Barang",

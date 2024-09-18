@@ -14,7 +14,7 @@ class PesananDetail extends Model
     protected $fillable = [
         'id',
         'pesanan_id',
-        'barang_id',
+        'barang_ukuran_id',
         'kuantitas',
         'harga',
         'diskon',
@@ -26,8 +26,8 @@ class PesananDetail extends Model
         return $this->belongsTo(Pesanan::class);
     }
 
-    public function barang(): BelongsTo
+    public function barang_ukuran(): BelongsTo
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(BarangUkuran::class);
     }
 }

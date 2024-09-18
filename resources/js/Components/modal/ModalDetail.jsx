@@ -20,7 +20,7 @@ const ModalDetail = ({ openModal, setOpenModal, modalData }) => {
                             {pesananDetails.map((data, i) => (
                                 <Table.Row key={i} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                     <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                        {data.barang?.nama_barang || 'N/A'}
+                                        {data.barang_ukuran?.barang?.nama_barang || 'N/A'} ({data.barang_ukuran?.ukuran || 'N/A'})
                                     </Table.Cell>
                                     <Table.Cell>{data.kuantitas || 0}</Table.Cell>
                                     <Table.Cell>

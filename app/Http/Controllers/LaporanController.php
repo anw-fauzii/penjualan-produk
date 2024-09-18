@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\BarangUkuran;
 use App\Models\Pesanan;
 use App\Models\User;
 use Carbon\Carbon;
@@ -18,7 +19,7 @@ class LaporanController extends Controller
         if ($user->hasRole('admin')) {
             $total_hpp = 0;
             $total_penjualan = 0;
-            $barang = Barang::All();
+            $barang = BarangUkuran::with('barang')->get();
             foreach ($barang as $data) {
                 $hpp = $data->stok * $data->harga_dasar;
                 $penjualan = $data->stok * $data->harga_jual;
@@ -35,6 +36,7 @@ class LaporanController extends Controller
             return Inertia::render('Error/404');
         }
     }
+
     public function penjualan(Request $request)
     {
         $hariIni = Carbon::today()->toDateString();
@@ -49,13 +51,13 @@ class LaporanController extends Controller
         if ($user->hasRole('admin')) {
             $total_hpp = 0;
             $total_penjualan = 0;
-            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang')
+            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
                 ->whereDate('created_at', '>=', $mulai)
                 ->whereDate('created_at', '<=', $akhir)
                 ->get();
             foreach ($pesanan as $data) {
                 foreach ($data->pesanan_detail as $data2) {
-                    $hpp = $data2->kuantitas * $data2->barang->harga_dasar;
+                    $hpp = $data2->kuantitas * $data2->barang_ukuran->harga_dasar;
                     $penjualan = $data2->subtotal;
                     $total_hpp += $hpp;
                     $total_penjualan += $penjualan;

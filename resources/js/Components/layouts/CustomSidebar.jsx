@@ -44,21 +44,21 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                         <Sidebar.Item
                             as={Link}
                             href="/barang"
-                            className={url === '/barang' ? 'bg-blue-200' : ''}
+                            className={url.includes('/barang') ? 'bg-blue-200' : ''}
                         >
                             Barang
                         </Sidebar.Item>
                         <Sidebar.Item
                             as={Link}
                             href="/supplier"
-                            className={url === '/supplier' ? 'bg-blue-200' : ''}
+                            className={url.includes('/supplier') ? 'bg-blue-200' : ''}
                         >
                             Supplier
                         </Sidebar.Item>
                         <Sidebar.Item
                             as={Link}
                             href="/kategori"
-                            className={url === '/kategori' ? 'bg-blue-200' : ''}
+                            className={url.includes('/kategori') ? 'bg-blue-200' : ''}
                         >
                             Kategori
                         </Sidebar.Item>

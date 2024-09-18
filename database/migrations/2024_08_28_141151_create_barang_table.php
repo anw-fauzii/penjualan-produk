@@ -18,13 +18,8 @@ return new class extends Migration
             $table->string('supplier_id');
             $table->foreign('supplier_id')->references('id')->on('supplier');
             $table->string('nama_barang');
-            $table->integer('harga_dasar');
-            $table->integer('harga_jual');
             $table->enum('unit', ["PG", "TK", "SD"]);
-            $table->integer('stok');
-            $table->integer('diskon');
             $table->text('foto')->nullable();
-            $table->text('barcode')->nullable();
             $table->timestamps();
         });
     }

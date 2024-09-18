@@ -62,7 +62,7 @@ export default function Create(props) {
     const barang = props.barang || [];
 
     const filteredBarang = barang.filter(item =>
-        item.nama_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.barang.nama_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -234,10 +234,10 @@ export default function Create(props) {
                     const item = props.barang.find(b => b.id === barcode);
                     if (item) {
                         addToCart(item);
-                        // Clear the input field after scanning
                         barcodeInputRef.current.value = '';
                     } else {
                         toastr.warning('Item tidak ditemukan.');
+                        barcodeInputRef.current.value = '';
                     }
                 }
             }
@@ -309,7 +309,7 @@ export default function Create(props) {
                                                         <HiOutlineShoppingCart />
                                                     </button>
                                                 </span>
-                                                <span className="col-span-2">{item.id} - {item.nama_barang}</span>
+                                                <span className="col-span-2">{item.id} - {item.barang.nama_barang} ({item.ukuran})</span>
                                                 <span><NumericFormat
                                                     value={item.harga_jual}
                                                     displayType={'text'}
@@ -337,6 +337,7 @@ export default function Create(props) {
                                             <th className="border-b px-4 py-2">Item</th>
                                             <th className="border-b px-4 py-2">Qty</th>
                                             <th className="border-b px-4 py-2">Harga</th>
+                                            <th className="border-b px-4 py-2">Diskon</th>
                                             <th className="border-b px-4 py-2">Total</th>
                                             <th className="border-b px-4 py-2">Aksi</th>
                                         </tr>
@@ -344,7 +345,7 @@ export default function Create(props) {
                                     <tbody>
                                         {cart.map(item => (
                                             <tr key={item.id}>
-                                                <td className="border-b px-4 py-2">{item.nama_barang}</td>
+                                                <td className="border-b px-4 py-2">{item.id} - {item.barang.nama_barang} ({item.ukuran})</td>
                                                 <td className="border-b px-4 py-2">
                                                     <button
                                                         onClick={() => handleQuantityChange(item.id, -1)}
@@ -364,6 +365,14 @@ export default function Create(props) {
                                                 <td className="border-b px-4 py-2">
                                                     <NumericFormat
                                                         value={item.harga_jual}
+                                                        displayType={'text'}
+                                                        thousandSeparator={true}
+                                                        prefix={'Rp. '}
+                                                    />
+                                                </td>
+                                                <td className="border-b px-4 py-2">
+                                                    <NumericFormat
+                                                        value={(item.harga_jual * (item.diskon / 100)) * item.kuantitas}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         prefix={'Rp. '}
@@ -391,7 +400,7 @@ export default function Create(props) {
                                 </table>
 
                                 <div className="mt-4">
-                                    <p><strong>Subtotal:</strong> <NumericFormat value={subtotal} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                    <p><strong>Subtotal:</strong> <NumericFormat value={totalHarga} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
                                     <p><strong>Total Diskon:</strong> <NumericFormat value={diskon} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
                                     <p><strong>Total Belanja:</strong> <NumericFormat value={total} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
                                 </div>

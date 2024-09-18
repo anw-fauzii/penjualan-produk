@@ -11,12 +11,12 @@ class StokBarang extends Model
     use HasFactory;
     protected $table = "stok_barang";
     protected $fillable = [
-        'barang_id',
+        'barang_ukuran_id',
         'stok',
     ];
 
-    public function barang(): BelongsTo
+    public function barang_ukuran(): BelongsTo
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(BarangUkuran::class);
     }
 }

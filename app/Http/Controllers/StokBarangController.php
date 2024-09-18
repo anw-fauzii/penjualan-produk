@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Barang;
+use App\Models\BarangUkuran;
 use App\Models\StokBarang;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class StokBarangController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $barang = StokBarang::with('barang')->get();
+            $barang = StokBarang::with(['barang_ukuran', 'barang_ukuran.barang'])->get();
             return Inertia('StokBarang/Index', [
                 'title' => "Pemasukan Stok",
                 'barang' => $barang
@@ -24,6 +24,7 @@ class StokBarangController extends Controller
             return Inertia::render('Error/404');
         }
     }
+
     public function updateStok(Request $request, $id)
     {
         $user = User::find(Auth::user()->id);
@@ -33,13 +34,13 @@ class StokBarangController extends Controller
             ], [
                 'stok.required' => "Stok harus diisi",
             ]);
-            $barang = Barang::find($id);
+            $barang = BarangUkuran::find($id);
             if ($barang) {
                 $barang->stok += $request->stok;
                 $barang->save();
 
                 $tanggal = now()->toDateString();
-                $stok = StokBarang::where('barang_id', $id)
+                $stok = StokBarang::where('barang_ukuran_id', $id)
                     ->whereDate('created_at', $tanggal)
                     ->first();
 
@@ -48,7 +49,7 @@ class StokBarangController extends Controller
                     $stok->save();
                 } else {
                     StokBarang::create([
-                        'barang_id' => $id,
+                        'barang_ukuran_id' => $id,
                         'stok' => $request->stok,
                         'created_at' => $tanggal,
                         'updated_at' => $tanggal,
