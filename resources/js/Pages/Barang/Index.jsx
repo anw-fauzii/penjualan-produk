@@ -48,13 +48,19 @@ export default function Index(props) {
             name: 'Unit',
             selector: row => row.unit,
             sortable: true,
-            width: '25%'
+            width: '15%'
         },
         {
             name: 'Nama Barang',
             selector: row => row.nama_barang,
             sortable: true,
-            width: '35%',
+            width: '30%',
+        },
+        {
+            name: 'Total Stok',
+            selector: row => row.total_stok,
+            sortable: true,
+            width: '10%',
         },
     ];
     const handleDelete = (id) => {

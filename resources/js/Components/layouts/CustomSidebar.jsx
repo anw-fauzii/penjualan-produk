@@ -121,14 +121,14 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                     >
                         <Sidebar.Item
                             as={Link}
-                            href="laporan-laba-rugi"
+                            href="/laporan-laba-rugi"
                             className={url === '/laporan-laba-rugi' ? 'bg-blue-200' : ''}
                         >
                             Laba Rugi
                         </Sidebar.Item>
                         <Sidebar.Item
                             as={Link}
-                            href="laporan-penjualan"
+                            href="/laporan-penjualan"
                             className={url.includes('laporan-penjualan') ? 'bg-blue-200' : ''}
                         >
                             Penjualan

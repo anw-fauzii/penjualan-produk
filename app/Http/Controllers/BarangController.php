@@ -19,7 +19,10 @@ class BarangController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $barang = Barang::with(['kategori', 'supplier'])->get();
+            $barang = Barang::with(['kategori', 'supplier', 'ukuran'])->get();
+            foreach ($barang as $item) {
+                $item->total_stok = $item->ukuran->sum('stok');
+            }
             return Inertia::render('Barang/Index', [
                 'title' => "Daftar Barang",
                 'barang' => $barang,
@@ -168,6 +171,6 @@ class BarangController extends Controller
     public function generatePdf($id)
     {
         $pdf = Pdf::loadView('barcode', ['code' => $id]);
-        return $pdf->download('barcode.pdf');
+        return $pdf->stream('barcode.pdf');
     }
 }
