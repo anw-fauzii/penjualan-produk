@@ -54,7 +54,7 @@ class BarangUkuranController extends Controller
                 $sequence = 1;
             }
 
-            $barang->id = $kode->unit . "-" . $datePrefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+            $barang->id = $kode->unit . $datePrefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
 
             $barang->barang_id = $request->barang_id;
             $barang->ukuran = $request->ukuran;
@@ -63,7 +63,7 @@ class BarangUkuranController extends Controller
             $barang->stok = "0";
             $barang->diskon = $request->diskon;
             $barang->save();
-            return to_route('barang.index');
+            return redirect()->route('barang.show', $barang->barang_id);
         } else {
             return Inertia::render('Error/404');
         }

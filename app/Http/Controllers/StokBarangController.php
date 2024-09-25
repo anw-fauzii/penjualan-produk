@@ -56,7 +56,7 @@ class StokBarangController extends Controller
                     ]);
                 }
             }
-            return to_route('barang.index');
+            return redirect()->route('barang.show', $barang->barang_id);
         } else {
             return Inertia::render('Error/404');
         }

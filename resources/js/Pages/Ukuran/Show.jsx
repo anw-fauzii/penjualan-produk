@@ -181,7 +181,7 @@ export default function Show(props) {
             <div className={`flex-1 flex flex-col ${sidebarOpen ? 'md:ml-64' : ''}`}>
                 <CustomNavbar toggleSidebar={toggleSidebar} />
 
-                <main className="flex-1 p-4 md:p-6 bg-white border-l border-gray-300 mt-16 overflow-auto">
+                <main className="flex-1 p-4 md:p-6 bg-white border-l border-gray-300 mt-16 overflow-auto mb-16">
                     <JudulHeader
                         judul={props.title}
                         subJudul="Barang"

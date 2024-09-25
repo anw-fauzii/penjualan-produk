@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -48,6 +49,11 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::resource('ukuran-barang', App\Http\Controllers\BarangUkuranController::class)->except(['update', 'create']);
     Route::post('edit-ukuran-barang/{id}', [App\Http\Controllers\BarangUkuranController::class, 'update']);
     Route::get('ukuran-barang/create/{id}', [App\Http\Controllers\BarangUkuranController::class, 'create'])->name('ukuran-barang.create');
+});
+
+Route::get('/optimize', function () {
+    $exitCode = Artisan::call('optimize');
+    return '<h1>Clear Config cleared</h1>';
 });
 
 require __DIR__ . '/auth.php';

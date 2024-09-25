@@ -55,7 +55,7 @@
                             <div class="barcode-item">
                                 <div class="barcode-image">
                                     @php
-                                        echo DNS1D::getBarcodeHTML($code, 'C128', 0.83, 40); // Ukuran barcode
+                                        echo DNS1D::getBarcodeHTML($code, 'C128', 0.88, 40); // Ukuran barcode
                                     @endphp
                                 </div>
                                 <div class="barcode-text">{{ $code }}</div>
