@@ -47,7 +47,7 @@
         <div class="container">
             <table>
                 <tr>
-                    @for ($i = 0; $i < 6; $i++)
+                    @for ($i = 0; $i < 20; $i++)
                         @if ($i % 2 == 0 && $i != 0)
                             </tr><tr>
                         @endif

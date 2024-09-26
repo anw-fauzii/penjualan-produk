@@ -17,8 +17,12 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
     }, [url]);
 
     const handleLogout = () => {
-        router.post('/logout');
-        router.clearHistory();
+        router.post('/logout', {}, {
+            onSuccess: () => {
+                window.history.replaceState(null, null, '/login');
+                window.location.reload();
+            },
+        });
     };
     return (
         <Sidebar
@@ -135,7 +139,6 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
                         </Sidebar.Item>
                     </Sidebar.Collapse>
                     <Sidebar.Item
-                        as={Link}
                         onClick={handleLogout}
                         icon={HiLogout}
                         className={`hover:bg-blue-100 ${url === '/signin' ? 'bg-blue-200' : ''}`}
