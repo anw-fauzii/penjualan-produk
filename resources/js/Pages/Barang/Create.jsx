@@ -67,8 +67,8 @@ export default function Create(props) {
                 <main className="flex-1 p-4 md:p-6 bg-white border-l border-gray-300 mt-16 overflow-auto mb-16">
                     <SubJudulHeader
                         judul={props.title}
-                        subJudul="Kategori"
-                        linkSubJudul="/kategori"
+                        subJudul="Barang"
+                        linkSubJudul="/barang"
                         subSubJudul="Create"
                     />
                     <div className="bg-white shadow-lg rounded-lg p-2 md:p-6 border border-gray-200 mb-16">

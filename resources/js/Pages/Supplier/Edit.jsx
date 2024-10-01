@@ -49,7 +49,7 @@ export default function Edit(props) {
                         judul={props.title}
                         subJudul="Supplier"
                         linkSubJudul="/supplier"
-                        subSubJudul="Create"
+                        subSubJudul="Edit"
                     />
                     <div className="bg-white shadow-lg rounded-lg p-2 md:p-6 border border-gray-200">
                         <div className="overflow-x-auto p-2">

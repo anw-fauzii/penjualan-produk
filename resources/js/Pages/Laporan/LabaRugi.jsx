@@ -22,7 +22,7 @@ export default function LabaRugi(props) {
             no: index + 1,
             ...item,
         })).filter(item =>
-            item.nama_barang.toLowerCase().includes(searchValue) ||
+            item.barang.nama_barang.toLowerCase().includes(searchValue) ||
             item.id.toLowerCase().includes(searchValue)
         );
         setFilteredData(filtered);
@@ -43,7 +43,7 @@ export default function LabaRugi(props) {
         },
         {
             name: 'Nama barang',
-            selector: row => row.nama_barang,
+            selector: row => row.barang.nama_barang + " (" + row.ukuran + ")",
             sortable: true,
             width: '17%',
         },

@@ -27,7 +27,8 @@ export default function Penjualan(props) {
             no: index + 1,
             ...item,
         })).filter(item =>
-            item.nama_barang.toLowerCase().includes(searchValue) ||
+            item.nama_pemesan.toLowerCase().includes(searchValue) ||
+            item.nama_siswa.toLowerCase().includes(searchValue) ||
             item.id.toLowerCase().includes(searchValue)
         );
         setFilteredData(filtered);

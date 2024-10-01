@@ -17,7 +17,7 @@ const ModalStok = ({ openModalStok, setOpenModalStok, modalData }) => {
                     stok: '',
                 });
                 setOpenModalStok(false);
-                router.get(route('barang.index'));
+                router.get(route('barang.show', modalData.barang_id));
             },
             onError: () => {
                 toastr.error('Silahkan Periksa Kembali Inputan Anda', 'Error!');

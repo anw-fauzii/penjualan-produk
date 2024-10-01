@@ -109,7 +109,7 @@ class BarangController extends Controller
             $supplier = Supplier::All();
             $barang = Barang::findOrFail($id);
             return Inertia::render('Barang/Edit', [
-                'title' => "Tambah Barang",
+                'title' => "Edit Barang",
                 'kategori' => $kategori,
                 'supplier' => $supplier,
                 'barang' => $barang,

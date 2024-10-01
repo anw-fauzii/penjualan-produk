@@ -103,7 +103,7 @@ export default function Create(props) {
 
                     let itemRow = `
                         <tr>
-                            <td>${item.nama_barang}</td>
+                            <td>${item.barang.nama_barang} (${item.ukuran})</td>
                             <td>${item.kuantitas}</td>
                             <td style="text-align:right;">${hargaJualFormatted}</td>
                             <td style="text-align:right;">${totalFormatted}</td>
@@ -128,7 +128,7 @@ export default function Create(props) {
                         <title>Struk Pembelian</title>
                         <style>
                             body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; }
-                            .receipt { width: 80mm; margin: 0; padding: 4mm; box-sizing: border-box; }
+                            .receipt { width: 72mm; margin: 0; padding: 1mm; box-sizing: border-box; }
                             .receipt img { display: block; width: 15%; height: auto; margin: 0 auto; }
                             .receipt h1 { font-size: 14px; margin-bottom: 5px; text-align: center; }
                             .receipt .tanggal { display: flex; justify-content: space-between; align-items: center; }
@@ -140,8 +140,8 @@ export default function Create(props) {
                             .receipt .line { border: none; border-top: 1px solid #000; height: 1px; margin: 5px 0; }
                             @media print {
                                 body { margin: 0; -webkit-print-color-adjust: exact; }
-                                .receipt { width: 80mm; border: none; box-shadow: none; }
-                                @page { size: 80mm auto; margin: 0; }
+                                .receipt { width: 72mm; border: none; box-shadow: none; }
+                                @page { size: 72mm auto; margin: 0; }
                                 .receipt img { justify-content: center; align-items: center; max-width: 100%; height: auto; margin: 0 auto; }
                             }
                         </style>
@@ -331,8 +331,7 @@ export default function Create(props) {
 
                         {/* Cart Items */}
                         {cart.length > 0 && (
-                            <div className="bg-gray-50 p-4 mt-4 rounded-lg shadow-md border border-gray-200">
-                                <h2 className="text-lg font-semibold mb-4">Keranjang</h2>
+                            <div className="p-4 mt-4 rounded-lg shadow-md border border-gray-200">
                                 <table className="w-full border-collapse">
                                     <thead>
                                         <tr>
