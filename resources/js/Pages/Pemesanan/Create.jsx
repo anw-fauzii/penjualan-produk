@@ -147,19 +147,19 @@ export default function Create(props) {
                         </style>
                     </head>
                     <body>
-                        <div class="receipt">
+                        <div className="receipt">
                             <img src="/storage/Untitled.png" width="8%" alt="Logo" />
                             <h1>Nota Pembelian</h1>
-                            <div class="line"></div>
+                            <div className="line"></div>
                             <p><strong>Siswa:</strong> ${response.props.flash.message.nama_siswa}</p>
                             <p><strong>Kelas:</strong> ${response.props.flash.message.kelas}</p>
                             <p><strong>Pengambil:</strong> ${response.props.flash.message.nama_pemesan}</p>
-                            <div class="line"></div>
-                            <div class="tanggal">
+                            <div className="line"></div>
+                            <div className="tanggal">
                                 <p>${response.props.flash.message.id}</p>
                                 <p>${formattedDateTime}</p>
                             </div>
-                            <div class="line"></div>
+                            <div className="line"></div>
                             <table>
                                 <thead>
                                     <tr>
@@ -173,7 +173,7 @@ export default function Create(props) {
                                     ${cartRows}
                                 </tbody>
                             </table>
-                            <div class="line"></div>
+                            <div className="line"></div>
                             <table>
                                 <tbody>
                                     <tr>
@@ -190,9 +190,9 @@ export default function Create(props) {
                                     </tr>
                                 </tbody>
                             </table>
-                            <div class="line"></div>
-                            <div class="footer">Terima kasih atas pembelian Anda! Produk dapat diretur dalam waktu 2 hari setelah pembelian. Pastikan kondisi produk baik dan tidak digunakan.</div>
-                            <div class="line"></div>
+                            <div className="line"></div>
+                            <div className="footer">Terima kasih atas pembelian Anda! Produk dapat diretur dalam waktu 2 hari setelah pembelian. Pastikan kondisi produk baik dan tidak digunakan.</div>
+                            <div className="line"></div>
                         </div>
                     </body>
                     </html>

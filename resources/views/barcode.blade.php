@@ -44,7 +44,7 @@
         </style>
     </head>
     <body>
-        <div class="container">
+        <div className="container">
             <table>
                 <tr>
                     @for ($i = 0; $i < 20; $i++)
@@ -52,13 +52,13 @@
                             </tr><tr>
                         @endif
                         <td>
-                            <div class="barcode-item">
-                                <div class="barcode-image">
+                            <div className="barcode-item">
+                                <div className="barcode-image">
                                     @php
                                         echo DNS1D::getBarcodeHTML($code, 'C128', 0.88, 40); // Ukuran barcode
                                     @endphp
                                 </div>
-                                <div class="barcode-text">{{ $code }}</div>
+                                <div className="barcode-text">{{ $code }}</div>
                             </div>
                         </td>
                     @endfor

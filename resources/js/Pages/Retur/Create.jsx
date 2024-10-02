@@ -15,6 +15,7 @@ export default function Create(props) {
     const [error, setError] = useState('');
     const [returnStatus, setReturnStatus] = useState('');
     const [returnQuantities, setReturnQuantities] = useState({});
+    const [returnSizes, setReturnSizes] = useState({}); // State untuk ukuran baru
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -46,7 +47,7 @@ export default function Create(props) {
         try {
             Swal.fire({
                 title: 'Konfirmasi',
-                text: 'Barang akan di retur',
+                text: 'Barang akan di retur dengan ukuran baru',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -57,12 +58,14 @@ export default function Create(props) {
                 if (result.isConfirmed) {
                     router.post(`/retur/${filteredPesanan.id}`, {
                         returnQuantities,
+                        returnSizes, // Mengirim ukuran baru
                     });
                     toastr.success('Item Berhasil di Retur', 'Sukses!')
                     setError('');
                     setFilteredPesanan(null);
                     setSearchId('');
                     setReturnQuantities({});
+                    setReturnSizes({}); // Reset ukuran
                 }
             });
         } catch (error) {
@@ -78,6 +81,13 @@ export default function Create(props) {
         setReturnQuantities(prev => ({
             ...prev,
             [itemId]: Math.max(0, Math.min(value, maxQuantity))
+        }));
+    };
+
+    const handleSizeChange = (itemId, sizeId) => {
+        setReturnSizes(prev => ({
+            ...prev,
+            [itemId]: sizeId
         }));
     };
 
@@ -133,13 +143,16 @@ export default function Create(props) {
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Return Quantity
                                                 </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    New Size
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {filteredPesanan.pesanan_detail.map(detail => (
                                                 <tr key={detail.id}>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        {detail.barang_ukuran.barang.nama_barang}
+                                                        {detail.barang_ukuran.barang.nama_barang} ({detail.barang_ukuran.ukuran})
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         {detail.kuantitas}
@@ -157,10 +170,30 @@ export default function Create(props) {
                                                             type="number"
                                                             value={returnQuantities[detail.id] || 0} // Set default value to 0
                                                             onChange={(e) => handleQuantityChange(detail.id, parseInt(e.target.value))}
-                                                            min="0" // Minimum value set to 0
+                                                            min="0"
                                                             max={detail.kuantitas}
                                                             className="border border-gray-300 rounded-lg p-2 w-24"
                                                         />
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <select
+                                                            value={returnSizes[detail.id] || detail.barang_ukuran.ukuran} // Default to current size
+                                                            onChange={(e) => handleSizeChange(detail.id, e.target.value)}
+                                                            className="border border-gray-300 rounded-lg p-2"
+                                                        >
+                                                            <option value="" selected>Ukuran</option>
+                                                            {Array.isArray(props.ukuran) && props.ukuran.length > 0 ? (
+                                                                props.ukuran
+                                                                    .filter(size => size.barang_id === detail.barang_ukuran.barang_id)
+                                                                    .map(size => (
+                                                                        <option key={size.id} value={size.id}>
+                                                                            {size.ukuran}
+                                                                        </option>
+                                                                    ))
+                                                            ) : (
+                                                                <option disabled>No sizes available</option> // Atau bisa juga tampilkan pesan lain
+                                                            )}
+                                                        </select>
                                                     </td>
                                                 </tr>
                                             ))}

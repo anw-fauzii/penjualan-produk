@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangUkuran;
 use App\Models\Pesanan;
 use App\Models\Retur;
 use App\Models\ReturDetail;
@@ -32,11 +33,13 @@ class ReturController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
+            $ukuran = BarangUkuran::where('stok', '!=', 0)->get();
             $pesanan = Pesanan::with(['pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang'])
                 ->get();
             return Inertia::render('Retur/Create', [
                 'title' => "Retur Barang",
                 'pesanan' => $pesanan,
+                'ukuran' => $ukuran
             ]);
         } else {
             return Inertia::render('Error/404');
@@ -45,11 +48,6 @@ class ReturController extends Controller
 
     public function store(Request $request, $id)
     {
-        $request->validate([
-            'returnQuantities' => 'required|array',
-            'returnQuantities.*' => 'required|integer|min:1'
-        ]);
-
         $pesanan = Pesanan::with('pesanan_detail')->findOrFail($id);
         $pesanan->update([
             'status' => "Retur",
@@ -57,13 +55,17 @@ class ReturController extends Controller
         $retur = Retur::create([
             'pesanan_id' => $pesanan->id,
         ]);
+
         foreach ($request->input('returnQuantities') as $itemId => $quantityToReturn) {
+
             $item = $pesanan->pesanan_detail()->findOrFail($itemId);
             ReturDetail::create([
                 'retur_id' => $retur->id,
                 'pesanan_detail_id' => $itemId,
-                'kuantitas' => $quantityToReturn
+                'kuantitas' => $quantityToReturn,
+                'ukuran_id' => $request->input('returnSizes')[$itemId],
             ]);
+
             $item->kuantitas -= $quantityToReturn;
             $item->save();
         }
