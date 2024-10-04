@@ -48,6 +48,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 1990 00:00:00 GMT');
     }
 }

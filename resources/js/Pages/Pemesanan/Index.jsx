@@ -4,7 +4,7 @@ import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
 import ModalDetail from '@/Components/modal/ModalDetail';
 import { Head, Link, router } from '@inertiajs/react';
-import { TextInput } from 'flowbite-react';
+import { Badge, TextInput } from 'flowbite-react';
 import { useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { NumericFormat } from 'react-number-format';
@@ -78,6 +78,17 @@ export default function Index(props) {
             sortable: true,
             width: '14%'
         },
+        {
+            name: 'Status',
+            selector: row => (
+                <Badge color={row.status.toLowerCase() === 'selesai' ? 'info' : row.status.toLowerCase() === 'retur' ? 'warning' : 'secondary'}>
+                    {row.status}
+                </Badge>
+            ),
+            sortable: true,
+            sortFunction: (rowA, rowB) => rowA.status.localeCompare(rowB.status),
+            width: '17%'
+        }
     ];
 
     const ExpandedComponent = ({ data }) => (

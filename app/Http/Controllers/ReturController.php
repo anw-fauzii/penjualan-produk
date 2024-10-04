@@ -63,11 +63,19 @@ class ReturController extends Controller
                 'retur_id' => $retur->id,
                 'pesanan_detail_id' => $itemId,
                 'kuantitas' => $quantityToReturn,
-                'ukuran_id' => $request->input('returnSizes')[$itemId],
+                'barang_ukuran_id' => $request->input('returnSizes')[$itemId] ?? null,
             ]);
 
             $item->kuantitas -= $quantityToReturn;
             $item->save();
+
+            $ukuranLama = BarangUkuran::find($item->barang_ukuran_id);
+            $ukuranLama->stok += $quantityToReturn;
+            $ukuranLama->save();
+
+            $ukuranBaru = BarangUkuran::find($request->input('returnSizes')[$itemId]);
+            $ukuranBaru->stok -= $quantityToReturn;
+            $ukuranBaru->save();
         }
 
         return redirect()->back();

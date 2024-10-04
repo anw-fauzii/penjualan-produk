@@ -17,7 +17,7 @@ class PesanController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')->get();
+            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')->orderBy('id', 'DESC')->get();
             return Inertia::render('Pemesanan/Index', [
                 'title' => "Daftar Pesanan",
                 'pesanan' => $pesanan,

@@ -19,8 +19,10 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar }) => {
     const handleLogout = () => {
         router.post('/logout', {}, {
             onSuccess: () => {
-                window.history.replaceState(null, null, '/login');
-                window.location.reload();
+                window.history.pushState(null, null, window.location.href);
+                window.onpopstate = function () {
+                    window.history.pushState(null, null, window.location.href);
+                };
             },
         });
     };

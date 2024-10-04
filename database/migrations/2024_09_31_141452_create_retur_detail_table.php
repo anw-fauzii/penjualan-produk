@@ -18,6 +18,8 @@ return new class extends Migration
             $table->bigInteger('pesanan_detail_id')->unsigned();
             $table->foreign('pesanan_detail_id')->references('id')->on('pesanan_detail');
             $table->integer('kuantitas');
+            $table->string('barang_ukuran_id')->nullable();
+            $table->foreign('barang_ukuran_id')->references('id')->on('barang_ukuran');
             $table->timestamps();
         });
     }

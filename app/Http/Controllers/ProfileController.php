@@ -58,6 +58,8 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/')->header('Cache-Control', 'no-store, no-cache, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 1990 00:00:00 GMT');
     }
 }

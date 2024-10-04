@@ -16,6 +16,7 @@ class ReturDetail extends Model
         'retur_id',
         'pesanan_detail_id',
         'kuantitas',
+        'barang_ukuran_id'
     ];
 
     public function retur(): BelongsTo
@@ -26,5 +27,10 @@ class ReturDetail extends Model
     public function pesanan_detail(): BelongsTo
     {
         return $this->belongsTo(PesananDetail::class);
+    }
+
+    public function barang_ukuran(): BelongsTo
+    {
+        return $this->belongsTo(BarangUkuran::class);
     }
 }
