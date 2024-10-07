@@ -71,8 +71,6 @@ export default function Create(props) {
     const placeOrder = (namaPemesan, kelas, namaSiswa) => {
         router.post('/pemesanan', { cart, namaPemesan, kelas, namaSiswa }, {
             onSuccess: (response) => {
-                console.log(response);
-
                 const numberFormat = new Intl.NumberFormat('id-ID', {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0,
@@ -88,7 +86,6 @@ export default function Create(props) {
 
                 const createdAt = new Date(response.props.flash.message.created_at);
 
-                // Extract and format date and time components
                 const day = createdAt.getDate().toString().padStart(2, '0');
                 const month = (createdAt.getMonth() + 1).toString().padStart(2, '0');
                 const year = createdAt.getFullYear();
@@ -103,18 +100,18 @@ export default function Create(props) {
 
                     let itemRow = `
                         <tr>
-                            <td>${item.barang.nama_barang} (${item.ukuran})</td>
-                            <td>${item.kuantitas}</td>
-                            <td style="text-align:right;">${hargaJualFormatted}</td>
-                            <td style="text-align:right;">${totalFormatted}</td>
+                            <td><strong>${item.barang.nama_barang} (${item.ukuran})</strong> </td>
+                            <td><strong>${item.kuantitas}</strong> </td>
+                            <td style="text-align:right;"><strong>${hargaJualFormatted}</strong> </td>
+                            <td style="text-align:right;"><strong>${totalFormatted}</strong> </td>
                         </tr>
                     `;
 
-                    if (item.diskon !== 0) {
-                        const diskonFormatted = numberFormat.format(((item.harga_jual * (item.diskon / 100)) * item.kuantitas));
+                    if (item.diskon > 0) {
+                        const diskonFormatted = numberFormat.format(((item.harga * (item.diskon / 100)) * item.kuantitas));
                         itemRow += `
                             <tr>
-                                <td colspan="4">Disc: -${diskonFormatted}</td>
+                                <td colspan="4"><strong>Disc: -${diskonFormatted}</strong></td>
                             </tr>
                         `;
                     }
@@ -127,12 +124,12 @@ export default function Create(props) {
                     <head>
                         <title>Struk Pembelian</title>
                         <style>
-                            body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; }
+                            body { font-family: 'Consolas', 'Courier New', monospace; margin: 0; padding: 0; }
                             .receipt { width: 72mm; margin: 0; padding: 1mm; box-sizing: border-box; }
                             .receipt img { display: block; width: 15%; height: auto; margin: 0 auto; }
                             .receipt h1 { font-size: 14px; margin-bottom: 5px; text-align: center; }
                             .receipt .tanggal { display: flex; justify-content: space-between; align-items: center; }
-                            .receipt p { margin: 2px 0; font-size: 12px; }
+                            .receipt p { margin: 2px 0; font-size: 13px; }
                             .receipt .footer { margin-top: 10px; text-align: center; font-size: 10px; line-height: 1.5; }
                             .receipt table { width: 100%; border-collapse: collapse; font-size: 10px; }
                             .receipt th, .receipt td { padding: 1mm; text-align: left; }
@@ -151,13 +148,12 @@ export default function Create(props) {
                             <img src="/storage/Untitled.png" width="8%" alt="Logo" />
                             <h1>Nota Pembelian</h1>
                             <div class="line"></div>
-                            <p><strong>Siswa:</strong> ${response.props.flash.message.nama_siswa}</p>
-                            <p><strong>Kelas:</strong> ${response.props.flash.message.kelas}</p>
-                            <p><strong>Pengambil:</strong> ${response.props.flash.message.nama_pemesan}</p>
+                            <p><strong>Siswa: ${response.props.flash.message.nama_siswa} (${response.props.flash.message.kelas})</strong></p>
+                            <p><strong>Pengambil:${response.props.flash.message.nama_pemesan}</strong> </p>
                             <div class="line"></div>
                             <div class="tanggal">
-                                <p>${response.props.flash.message.id}</p>
-                                <p>${formattedDateTime}</p>
+                                <p><strong>${response.props.flash.message.id}</strong></p>
+                                <p><strong>${formattedDateTime}</strong></p>
                             </div>
                             <div class="line"></div>
                             <table>
@@ -177,21 +173,21 @@ export default function Create(props) {
                             <table>
                                 <tbody>
                                     <tr>
-                                        <td colspan="3" style="text-align:right;">Subtotal</td>
-                                        <td style="text-align:right;">${totalHargaFormatted}</td>
+                                        <td colspan="3" style="text-align:right;"><strong>Subtotal</strong> </td>
+                                        <td style="text-align:right;"><strong>${totalHargaFormatted}</strong> </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" style="text-align:right;">Total Diskon</td>
-                                        <td style="text-align:right;">${totalDiskonFormatted}</td>
+                                        <td colspan="3" style="text-align:right;"><strong>Total Diskon</strong> </td>
+                                        <td style="text-align:right;"><strong>${totalDiskonFormatted}</strong> </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" style="text-align:right;">Total Belanja</td>
-                                        <td style="text-align:right;">${totalBelanjaFormatted}</td>
+                                        <td colspan="3" style="text-align:right;"><strong>Total Belanja</strong> </td>
+                                        <td style="text-align:right;"><strong>${totalBelanjaFormatted}</strong> </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="line"></div>
-                            <div class="footer">Terima kasih atas pembelian Anda! Produk dapat diretur dalam waktu 2 hari setelah pembelian. Pastikan kondisi produk baik dan tidak digunakan.</div>
+                            <div class="footer"><strong>Terima kasih atas pembelian Anda! Produk dapat diretur dalam waktu 2 hari setelah pembelian. Pastikan kondisi produk baik dan tidak digunakan.</strong>     </div>
                             <div class="line"></div>
                         </div>
                     </body>
@@ -285,7 +281,6 @@ export default function Create(props) {
                             />
                         </div>
 
-                        {/* Search Bar */}
                         <div className="mb-4">
                             <input
                                 type="text"
@@ -296,7 +291,6 @@ export default function Create(props) {
                             />
                         </div>
 
-                        {/* Product List - Only show if searchTerm is not empty */}
                         {searchTerm && (
                             <div className="mb-4">
                                 <ul>

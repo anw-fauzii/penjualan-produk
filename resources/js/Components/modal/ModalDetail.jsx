@@ -56,7 +56,7 @@ const ModalDetail = ({ openModal, setOpenModal, modalData }) => {
                                 <Table.Cell></Table.Cell>
                                 <Table.Cell><strong>
                                     <NumericFormat
-                                        value={modalData.total_harga || 0}
+                                        value={pesananDetails.reduce((acc, item) => acc + (item.subtotal || 0), 0) || 0}
                                         displayType={'text'}
                                         thousandSeparator={true}
                                         prefix={'Rp. '}

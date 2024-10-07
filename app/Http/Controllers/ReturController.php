@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BarangUkuran;
 use App\Models\Pesanan;
+use App\Models\PesananDetail;
 use App\Models\Retur;
 use App\Models\ReturDetail;
 use App\Models\User;
@@ -65,9 +66,18 @@ class ReturController extends Controller
                 'kuantitas' => $quantityToReturn,
                 'barang_ukuran_id' => $request->input('returnSizes')[$itemId] ?? null,
             ]);
-
             $item->kuantitas -= $quantityToReturn;
-            $item->save();
+            $item->subtotal = $item->kuantitas * $item->harga;
+            $item->update();
+
+            $pesananDetail = PesananDetail::create([
+                'pesanan_id' => $item->pesanan_id,
+                'barang_ukuran_id' => $request->input('returnSizes')[$itemId] ?? null,
+                'kuantitas' => $quantityToReturn,
+                'harga' => $item->barang_ukuran->harga_jual,
+                'diskon' => $item->barang_ukuran->diskon,
+                'subtotal' => ($item->barang_ukuran->harga_jual * $quantityToReturn) - (($item->barang_ukuran->harga_jual * ($item->barang_ukuran->diskon / 100)) * $quantityToReturn),
+            ]);
 
             $ukuranLama = BarangUkuran::find($item->barang_ukuran_id);
             $ukuranLama->stok += $quantityToReturn;

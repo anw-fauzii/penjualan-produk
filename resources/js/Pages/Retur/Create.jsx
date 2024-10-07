@@ -112,7 +112,7 @@ export default function Create(props) {
                                 onClick={handleSearch}
                                 className="bg-blue-600 text-white rounded-lg px-6 py-3 hover:bg-blue-700 transition duration-150"
                             >
-                                Search
+                                Cari
                             </button>
                         </div>
                         {returnStatus && (
@@ -122,29 +122,29 @@ export default function Create(props) {
                         )}
                         {filteredPesanan && (
                             <div>
-                                <h2 className="text-xl font-semibold mb-4">Order Details</h2>
+                                <h2 className="text-xl font-semibold mb-4">Detail Pesanan</h2>
                                 <div className="mb-6">
                                     <h3 className="text-lg font-semibold mb-2">Pesanan ID: {filteredPesanan.id}</h3>
-                                    <p className="text-gray-700"><strong>Customer:</strong> {filteredPesanan.nama_pemesan}</p>
-                                    <p className="text-gray-700"><strong>Date:</strong> {new Date(filteredPesanan.created_at).toLocaleDateString()}</p>
-                                    <h4 className="font-semibold mt-4 mb-2">Details:</h4>
+                                    <p className="text-gray-700"><strong>Pemesan:</strong> {filteredPesanan.nama_pemesan} - {filteredPesanan.nama_siswa} ({filteredPesanan.kelas})  </p>
+                                    <p className="text-gray-700"><strong>Tanggal:</strong> {new Date(filteredPesanan.created_at).toLocaleDateString()}</p>
+                                    <h4 className="font-semibold mt-4 mb-2">Detail:</h4>
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-100">
                                             <tr>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Product
+                                                    Produk
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Quantity
+                                                    Qty
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Price
+                                                    Harga
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Return Quantity
+                                                    Retur Qty
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    New Size
+                                                    Ukuran Baru
                                                 </th>
                                             </tr>
                                         </thead>
@@ -168,7 +168,7 @@ export default function Create(props) {
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <input
                                                             type="number"
-                                                            value={returnQuantities[detail.id] || 0} // Set default value to 0
+                                                            value={returnQuantities[detail.id] || 0}
                                                             onChange={(e) => handleQuantityChange(detail.id, parseInt(e.target.value))}
                                                             min="0"
                                                             max={detail.kuantitas}

@@ -5,7 +5,7 @@ import JudulHeader from '@/Components/layouts/JudulHeader';
 import ModalDetail from '@/Components/modal/ModalDetail';
 import ModalFilter from '@/Components/modal/ModalFilter';
 import { Head, Link, router } from '@inertiajs/react';
-import { Button, TextInput } from 'flowbite-react';
+import { Badge, Button, TextInput } from 'flowbite-react';
 import { useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { NumericFormat } from 'react-number-format';
@@ -47,7 +47,7 @@ export default function Penjualan(props) {
             name: 'No',
             selector: row => row.no,
             sortable: true,
-            width: '8%',
+            width: '7%',
         },
         {
             name: 'Kode',
@@ -59,13 +59,13 @@ export default function Penjualan(props) {
             name: 'Nama Penerima',
             selector: row => row.nama_pemesan,
             sortable: true,
-            width: '20%',
+            width: '17%',
         },
         {
             name: 'Nama Siswa',
             selector: row => row.nama_siswa + " (" + row.kelas + ")",
             sortable: true,
-            width: '20%',
+            width: '18%',
         },
         {
             name: 'Total Harga',
@@ -80,7 +80,17 @@ export default function Penjualan(props) {
             sortable: true,
             width: '15%'
         },
-
+        {
+            name: 'Status',
+            selector: row => (
+                <Badge color={row.status.toLowerCase() === 'selesai' ? 'info' : row.status.toLowerCase() === 'retur' ? 'warning' : 'secondary'}>
+                    {row.status}
+                </Badge>
+            ),
+            sortable: true,
+            sortFunction: (rowA, rowB) => rowA.status.localeCompare(rowB.status),
+            width: '13%'
+        },
         {
             name: 'Detail',
             selector: row => (

@@ -52,6 +52,7 @@ class LaporanController extends Controller
             $total_hpp = 0;
             $total_penjualan = 0;
             $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
+                ->where('status', 'selesai')
                 ->whereDate('created_at', '>=', $mulai)
                 ->whereDate('created_at', '<=', $akhir)
                 ->get();
