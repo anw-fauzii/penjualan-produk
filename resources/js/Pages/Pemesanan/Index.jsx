@@ -64,19 +64,24 @@ export default function Index(props) {
             selector: row => row.nama_siswa + " (" + row.kelas + ")",
             sortable: true,
             width: '20%',
-        },
-        {
+        }, {
             name: 'Total Harga',
-            selector: row => row.pesanan_detail.reduce((acc, item) => acc + (item.subtotal || 0), 0), // hanya kembalikan angka
+            selector: row => row.pesanan_detail.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0),
             sortable: true,
-            cell: row => (
-                <NumericFormat
-                    value={row.pesanan_detail.reduce((acc, item) => acc + (item.subtotal || 0), 0)}
-                    displayType={'text'}
-                    thousandSeparator={true}
-                    prefix={'Rp. '}
-                />
-            ),
+            cell: row => {
+                const totalHarga = row.pesanan_detail.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
+                console.log(totalHarga);
+                return (
+                    <NumericFormat
+                        value={totalHarga}
+                        displayType={'text'}
+                        thousandSeparator={true}
+                        prefix={'Rp. '}
+                        allowLeadingZeros={false}
+                        decimalScale={0}
+                    />
+                );
+            },
             width: '14%'
         },
         {
@@ -137,7 +142,6 @@ export default function Index(props) {
         const minutes = createdAt.getMinutes().toString().padStart(2, '0');
 
         const formattedDateTime = `${day}/${month}/${year} ${hours}:${minutes}`;
-        console.log(printData.pesanan_detail)
         const cartRows = printData.pesanan_detail.map(item => {
             const hargaJualFormatted = numberFormat.format(item.harga);
             const totalFormatted = numberFormat.format(item.harga * item.kuantitas);

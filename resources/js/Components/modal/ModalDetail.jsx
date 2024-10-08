@@ -3,6 +3,7 @@ import { NumericFormat } from "react-number-format";
 
 const ModalDetail = ({ openModal, setOpenModal, modalData }) => {
     const pesananDetails = modalData?.pesanan_detail || [];
+    const totalHarga = pesananDetails.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
     return (
         <Modal dismissible size="4xl" position="top-center" show={openModal} onClose={() => setOpenModal(false)}>
             <Modal.Header>{modalData?.id}</Modal.Header>
@@ -56,10 +57,12 @@ const ModalDetail = ({ openModal, setOpenModal, modalData }) => {
                                 <Table.Cell></Table.Cell>
                                 <Table.Cell><strong>
                                     <NumericFormat
-                                        value={pesananDetails.reduce((acc, item) => acc + (item.subtotal || 0), 0) || 0}
+                                        value={totalHarga}
                                         displayType={'text'}
                                         thousandSeparator={true}
                                         prefix={'Rp. '}
+                                        allowLeadingZeros={false}
+                                        decimalScale={0}
                                     />
                                 </strong></Table.Cell>
                             </Table.Row>

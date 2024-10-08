@@ -69,15 +69,22 @@ export default function Penjualan(props) {
         },
         {
             name: 'Total Harga',
-            selector: row => (
-                <NumericFormat
-                    value={row.total_harga}
-                    displayType={'text'}
-                    thousandSeparator={true}
-                    prefix={'Rp. '}
-                />
-            ),
+            selector: row => row.pesanan_detail.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0),
             sortable: true,
+            cell: row => {
+                const totalHarga = row.pesanan_detail.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
+                console.log(totalHarga);
+                return (
+                    <NumericFormat
+                        value={totalHarga}
+                        displayType={'text'}
+                        thousandSeparator={true}
+                        prefix={'Rp. '}
+                        allowLeadingZeros={false}
+                        decimalScale={0}
+                    />
+                );
+            },
             width: '15%'
         },
         {
