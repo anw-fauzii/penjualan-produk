@@ -168,9 +168,9 @@ class BarangController extends Controller
         }
     }
 
-    public function generatePdf($id)
+    public function generatePdf(Request $request, $id)
     {
-        $pdf = Pdf::loadView('barcode', ['code' => $id]);
+        $pdf = Pdf::loadView('barcode', ['code' => $id, 'jumlah' => $request->jumlah]);
         return $pdf->stream('barcode.pdf');
     }
 }

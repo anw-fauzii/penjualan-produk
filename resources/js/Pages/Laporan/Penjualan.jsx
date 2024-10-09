@@ -6,11 +6,13 @@ import ModalDetail from '@/Components/modal/ModalDetail';
 import ModalFilter from '@/Components/modal/ModalFilter';
 import { Head, Link, router } from '@inertiajs/react';
 import { Badge, Button, TextInput } from 'flowbite-react';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { NumericFormat } from 'react-number-format';
 
 export default function Penjualan(props) {
+    const [showPrintButton, setShowPrintButton] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [openFilterModal, setOpenFilterModal] = useState(false);
     const [modalData, setModalData] = useState(false);
@@ -116,6 +118,35 @@ export default function Penjualan(props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+    const getQueryParams = () => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const mulai = queryParams.get('mulai');
+        const akhir = queryParams.get('akhir');
+        return { mulai, akhir };
+    };
+
+    // Fungsi untuk mengunduh PDF
+    const downloadPdf = () => {
+        const { mulai, akhir } = getQueryParams();  // Ambil query params menggunakan fungsi utilitas
+        if (mulai && akhir) {
+            const url = `/laporan-pdf?mulai=${encodeURIComponent(mulai)}&akhir=${encodeURIComponent(akhir)}`;
+            window.open(url, '_blank');
+        } else {
+            console.error('Mulai dan Akhir tanggal tidak ditemukan');
+        }
+    };
+
+    // Memeriksa query parameters di useEffect
+    useEffect(() => {
+        const { mulai, akhir } = getQueryParams();
+
+        if (mulai && akhir) {
+            setShowPrintButton(true);
+        } else {
+            setShowPrintButton(false);
+        }
+    }, []);
+
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
             <Head title={props.title} />
@@ -184,13 +215,22 @@ export default function Penjualan(props) {
                     </div>
                     <div className="bg-white shadow-lg rounded-lg p-4 md:p-6 border border-gray-200 relative">
                         <div className="flex flex-col md:flex-row justify-between mb-4 space-y-4 md:space-y-0 md:space-x-4">
-                            <button onClick={() => setOpenFilterModal(true)} type="button" className="flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
-                                <svg className="w-5 h-5 mr-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z" />
-                                </svg>
-                                <span className='flex'>Filter Data </span>
-                            </button>
-
+                            <div className='flex'>
+                                <button onClick={() => setOpenFilterModal(true)} type="button" className="flex text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
+                                    <svg className="w-5 h-5 mr-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z" />
+                                    </svg>
+                                    <span className='flex'>Filter Data </span>
+                                </button>
+                                {showPrintButton && (
+                                    <button onClick={downloadPdf} type="button" className="flex text-gray-900 bg-gradient-to-r from-lime-200 via-lime-400 to-lime-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-lime-300 dark:focus:ring-lime-800  font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
+                                        <svg class="w-5 h-5 mr-2 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M16.444 18H19a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2.556M17 11V5a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v6h10ZM7 15h10v4a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-4Z" />
+                                        </svg>
+                                        <span className='flex'>Download </span>
+                                    </button>
+                                )}
+                            </div>
                             <div className="flex items-center w-full md:w-auto">
                                 <TextInput
                                     value={searchTerm}

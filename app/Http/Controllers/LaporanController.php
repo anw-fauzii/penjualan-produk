@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\BarangUkuran;
 use App\Models\Pesanan;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,5 +75,28 @@ class LaporanController extends Controller
         } else {
             return Inertia::render('Error/404');
         }
+    }
+
+    public function generatePdf(Request $request)
+    {
+        $total_hpp = 0;
+        $total_penjualan = 0;
+        $mulai = $request->query('mulai');
+        $akhir = $request->query('akhir');
+        $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
+            ->where('status', 'selesai')
+            ->whereDate('created_at', '>=', $mulai)
+            ->whereDate('created_at', '<=', $akhir)
+            ->get();
+        foreach ($pesanan as $data) {
+            foreach ($data->pesanan_detail as $data2) {
+                $hpp = $data2->kuantitas * $data2->barang_ukuran->harga_dasar;
+                $penjualan = $data2->subtotal;
+                $total_hpp += $hpp;
+                $total_penjualan += $penjualan;
+            }
+        }
+        $pdf = Pdf::loadView('laporan', compact('pesanan', 'mulai', 'akhir', 'total_hpp', 'total_penjualan'));
+        return $pdf->stream('laporan.pdf');
     }
 }

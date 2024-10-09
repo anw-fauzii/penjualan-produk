@@ -39,26 +39,26 @@
                 align-items: center;
             }
             .barcode-text {
-                font-size: 8px; /* Ukuran teks */
+                font-size: 12px; /* Ukuran teks */
             }
         </style>
     </head>
     <body>
-        <div className="container">
+        <div class="container">
             <table>
                 <tr>
-                    @for ($i = 0; $i < 20; $i++)
+                    @for ($i = 0; $i < $jumlah; $i++)
                         @if ($i % 2 == 0 && $i != 0)
                             </tr><tr>
                         @endif
                         <td>
-                            <div className="barcode-item">
-                                <div className="barcode-image">
+                            <div class="barcode-item">
+                                <div class="barcode-image">
                                     @php
-                                        echo DNS1D::getBarcodeHTML($code, 'C128', 0.88, 40); // Ukuran barcode
+                                        echo DNS1D::getBarcodeHTML($code, 'C128', 0.88, 30); // Ukuran barcode
                                     @endphp
                                 </div>
-                                <div className="barcode-text">{{ $code }}</div>
+                                <div class="barcode-text">{{ $code }}</div>
                             </div>
                         </td>
                     @endfor
