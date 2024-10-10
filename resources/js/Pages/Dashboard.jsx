@@ -56,7 +56,7 @@ export default function Dashboard(props) {
     return (
         <div className="flex max-h-screen bg-gray-100 overflow-hidden">
             <Head title="Dashboard" />
-            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} roleUser={props.roleUser} />
             <div className="flex flex-1 flex-col mb-11">
                 <CustomNavbar toggleSidebar={toggleSidebar} />
                 <main className="flex-1 p-6 bg-white border-l border-gray-300 mt-16 overflow-auto">

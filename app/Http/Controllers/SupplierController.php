@@ -18,9 +18,10 @@ class SupplierController extends Controller
             return Inertia::render('Supplier/Index', [
                 'title' => "Daftar Supplier",
                 'supplier' => $supplier,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -30,9 +31,10 @@ class SupplierController extends Controller
         if ($user->hasRole('admin')) {
             return Inertia::render('Supplier/Create', [
                 'title' => "Tambah Supplier",
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -59,7 +61,7 @@ class SupplierController extends Controller
             $supplier->save();
             return to_route('supplier.index');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -77,9 +79,10 @@ class SupplierController extends Controller
             return Inertia::render('Supplier/Edit', [
                 'title' => "Edit Data Supplier",
                 'supplier' => $supplier,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -106,7 +109,7 @@ class SupplierController extends Controller
             $supplier->update();
             return to_route('supplier.index');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -118,7 +121,7 @@ class SupplierController extends Controller
             $supplier->delete();
             return redirect()->back()->with('message', 'Data berhasil dihapus');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 }

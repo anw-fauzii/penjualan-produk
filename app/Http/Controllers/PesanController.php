@@ -21,9 +21,10 @@ class PesanController extends Controller
             return Inertia::render('Pemesanan/Index', [
                 'title' => "Daftar Pesanan",
                 'pesanan' => $pesanan,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -34,10 +35,11 @@ class PesanController extends Controller
             $barang = BarangUkuran::with('barang')->get();
             return Inertia('Pemesanan/Create', [
                 'title' => "Pemesanan",
-                'barang' => $barang
+                'barang' => $barang,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 

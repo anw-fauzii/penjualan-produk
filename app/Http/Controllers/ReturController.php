@@ -24,9 +24,10 @@ class ReturController extends Controller
             return Inertia::render('Retur/Index', [
                 'title' => "Retur Barang",
                 'retur' => $retur,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -40,10 +41,11 @@ class ReturController extends Controller
             return Inertia::render('Retur/Create', [
                 'title' => "Retur Barang",
                 'pesanan' => $pesanan,
-                'ukuran' => $ukuran
+                'ukuran' => $ukuran,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 

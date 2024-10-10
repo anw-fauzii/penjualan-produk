@@ -18,10 +18,11 @@ class StokBarangController extends Controller
             $barang = StokBarang::with(['barang_ukuran', 'barang_ukuran.barang'])->get();
             return Inertia('StokBarang/Index', [
                 'title' => "Pemasukan Stok",
-                'barang' => $barang
+                'barang' => $barang,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -58,7 +59,7 @@ class StokBarangController extends Controller
             }
             return redirect()->route('barang.show', $barang->barang_id);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 }

@@ -3,9 +3,8 @@ import CustomNavbar from '@/Components/layouts/CustomNavbar';
 import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import SubJudulHeader from '@/Components/layouts/SubJudulHeader';
 import { Head, useForm } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { NumericFormat } from 'react-number-format';
-import Select from 'react-select';
 import toastr from 'toastr';
 
 export default function Edit(props) {
@@ -18,7 +17,6 @@ export default function Edit(props) {
         diskon: props.barang.diskon || '',
         ukuran: props.barang.ukuran || '',
     })
-    console.log(props)
     const submit = (e) => {
         e.preventDefault()
         post(`/edit-ukuran-barang/${props.barang.id}`, {
@@ -42,7 +40,7 @@ export default function Edit(props) {
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
             <Head title={props.title} />
-            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} roleUser={props.roleUser} />
 
             <div className={`flex-1 flex flex-col ${sidebarOpen ? 'md:ml-64' : ''}`}>
                 <CustomNavbar toggleSidebar={toggleSidebar} />

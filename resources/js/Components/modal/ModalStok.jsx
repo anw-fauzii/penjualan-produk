@@ -6,7 +6,6 @@ const ModalStok = ({ openModalStok, setOpenModalStok, modalData }) => {
     const { data, setData, post, errors } = useForm({
         stok: '',
     });
-    console.log(modalData)
     const submit = (e) => {
         e.preventDefault();
         post(`/update-stok/${modalData.id}`, {

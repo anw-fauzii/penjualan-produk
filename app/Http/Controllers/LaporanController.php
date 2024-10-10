@@ -17,7 +17,7 @@ class LaporanController extends Controller
     public function labarugi()
     {
         $user = User::find(Auth::user()->id);
-        if ($user->hasRole('admin')) {
+        if ($user->hasAnyRole('admin|bendahara')) {
             $total_hpp = 0;
             $total_penjualan = 0;
             $barang = BarangUkuran::with('barang')->get();
@@ -32,9 +32,11 @@ class LaporanController extends Controller
                 'barang' => $barang,
                 'total_hpp' => $total_hpp,
                 'total_penjualan' => $total_penjualan,
+                'roleUser' => $user->getRoleNames()
+
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -49,7 +51,7 @@ class LaporanController extends Controller
             $akhir = "0000-00-00";
         }
         $user = User::find(Auth::user()->id);
-        if ($user->hasRole('admin')) {
+        if ($user->hasAnyRole('admin|bendahara')) {
             $total_hpp = 0;
             $total_penjualan = 0;
             $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
@@ -71,9 +73,10 @@ class LaporanController extends Controller
                 'total_hpp' => $total_hpp,
                 'total_penjualan' => $total_penjualan,
                 'hariIni' => $hariIni,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 

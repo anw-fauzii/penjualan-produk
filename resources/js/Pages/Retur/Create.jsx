@@ -94,7 +94,7 @@ export default function Create(props) {
     return (
         <div className="flex max-h-screen bg-gray-100 overflow-hidden">
             <Head title={props.title} />
-            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} roleUser={props.roleUser} />
             <div className="flex flex-1 flex-col mb-11">
                 <CustomNavbar toggleSidebar={toggleSidebar} />
                 <main className="flex-1 p-8 bg-white border-l border-gray-300 mt-16 overflow-auto">

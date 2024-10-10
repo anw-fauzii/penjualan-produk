@@ -19,9 +19,10 @@ class BarangUkuranController extends Controller
             return Inertia::render('Ukuran/Create', [
                 'title' => "Tambah Ukuran",
                 'id' => $id,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -65,7 +66,7 @@ class BarangUkuranController extends Controller
             $barang->save();
             return redirect()->route('barang.show', $barang->barang_id);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -77,9 +78,10 @@ class BarangUkuranController extends Controller
             return Inertia::render('Ukuran/Edit', [
                 'title' => "Update Ukuran",
                 'barang' => $barang,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -105,7 +107,7 @@ class BarangUkuranController extends Controller
             $barang->update();
             return to_route('barang.index');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -117,7 +119,7 @@ class BarangUkuranController extends Controller
             $barang->delete();
             return redirect()->back()->with('message', 'Data berhasil dihapus');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 }

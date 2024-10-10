@@ -18,9 +18,10 @@ class KategoriController extends Controller
             return Inertia::render('Kategori/Index', [
                 'title' => "Daftar Kategori",
                 'kategori' => $kategori,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -30,9 +31,10 @@ class KategoriController extends Controller
         if ($user->hasRole('admin')) {
             return Inertia::render('Kategori/Create', [
                 'title' => "Tambah Kategori",
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -50,7 +52,7 @@ class KategoriController extends Controller
             $kategori->save();
             return to_route('kategori.index');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -68,9 +70,10 @@ class KategoriController extends Controller
             return Inertia::render('Kategori/Edit', [
                 'title' => "Edit Data Kategori",
                 'kategori' => $kategori,
+                'roleUser' => $user->getRoleNames()
             ]);
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -88,7 +91,7 @@ class KategoriController extends Controller
             $kategori->update();
             return to_route('kategori.index');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 
@@ -100,7 +103,7 @@ class KategoriController extends Controller
             $kategori->delete();
             return redirect()->back()->with('message', 'Data berhasil dihapus');
         } else {
-            return Inertia::render('Error/404');
+            return Inertia::render('Error/403');
         }
     }
 }

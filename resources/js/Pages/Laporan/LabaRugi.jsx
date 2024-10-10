@@ -103,7 +103,7 @@ export default function LabaRugi(props) {
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
             <Head title={props.title} />
-            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            <CustomSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} roleUser={props.roleUser} />
 
             <div className={`flex-1 flex flex-col ${sidebarOpen ? 'md:ml-64' : ''}`}>
                 <CustomNavbar toggleSidebar={toggleSidebar} />
