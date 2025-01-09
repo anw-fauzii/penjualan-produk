@@ -21,32 +21,41 @@ export default function Create(props) {
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
     const addToCart = (item) => {
-        setCart(prevCart => {
-            const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
-            if (existingItem) {
-                setSearchTerm('');
-                return prevCart.map(cartItem =>
-                    cartItem.id === item.id
-                        ? { ...cartItem, kuantitas: cartItem.kuantitas + 1 }
-                        : cartItem
-                );
-            } else {
-                setSearchTerm('');
-                return [...prevCart, { ...item, kuantitas: 1 }];
-            }
-        });
+        if (item.stok > 0) {
+            setCart(prevCart => {
+                const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+                if (existingItem) {
+                    setSearchTerm('');
+                    return prevCart.map(cartItem =>
+                        cartItem.id === item.id
+                            ? { ...cartItem, kuantitas: cartItem.kuantitas + 1 }
+                            : cartItem
+                    );
+                } else {
+                    setSearchTerm('');
+                    return [...prevCart, { ...item, kuantitas: 1 }];
+                }
+            });
+        } else {
+            setSearchTerm('');
+            toastr.warning('Stok barang ini habis.');
+        }
     };
 
     const handleQuantityChange = (id, delta) => {
         setCart(prevCart =>
             prevCart.map(item =>
                 item.id === id
-                    ? { ...item, kuantitas: Math.max(1, item.kuantitas + delta) }
+                    ? {
+                        ...item,
+                        kuantitas: delta > 0
+                            ? Math.min(item.kuantitas + delta, item.stok)
+                            : Math.max(1, item.kuantitas + delta)
+                    }
                     : item
             )
         );
     };
-
     const handleRemoveFromCart = (id) => {
         setCart(prevCart => prevCart.filter(item => item.id !== id));
     };
