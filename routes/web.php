@@ -43,6 +43,8 @@ Route::middleware(['auth', 'revalidate'])->group(function () {
     Route::post('/print-pesanan', [App\Http\Controllers\PesanController::class, 'printPesanan']);
     Route::get('laporan-laba-rugi', [App\Http\Controllers\LaporanController::class, 'labarugi']);
     Route::get('laporan-penjualan', [App\Http\Controllers\LaporanController::class, 'penjualan']);
+    Route::get('laporan-seragam', [App\Http\Controllers\LaporanController::class, 'seragam']);
+    Route::get('laporan-atk', [App\Http\Controllers\LaporanController::class, 'atk']);
     Route::get('/generate-pdf/{id}', [App\Http\Controllers\BarangController::class, 'generatePdf']);
     Route::get('/laporan-pdf/', [App\Http\Controllers\LaporanController::class, 'generatePdf']);
     Route::resource('retur', App\Http\Controllers\ReturController::class)->except(['update', 'store']);

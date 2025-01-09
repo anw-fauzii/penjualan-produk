@@ -11,7 +11,7 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar, roleUser }) => {
     const [isCollapseReturOpen, setIsCollapseReturOpen] = useState(false);
     useEffect(() => {
         setIsCollapseMasterOpen(url.includes('/supplier') || url.includes('/kategori') || url.includes('/barang'));
-        setIsCollapseLaporanOpen(url.includes('/laporan-penjualan') || url.includes('/laporan-laba-rugi'));
+        setIsCollapseLaporanOpen(url.includes('/laporan-penjualan') || url.includes('/laporan-laba-rugi') || url.includes('/laporan-seragam')|| url.includes('/laporan-atk'));
         setIsCollapsePesananOpen(url.includes('/pemesanan'));
         setIsCollapseReturOpen(url.includes('/retur'));
     }, [url]);
@@ -143,6 +143,20 @@ const CustomSidebar = ({ sidebarOpen, toggleSidebar, roleUser }) => {
                             className={url.includes('laporan-penjualan') ? 'bg-blue-200' : ''}
                         >
                             Penjualan
+                        </Sidebar.Item>
+                        <Sidebar.Item
+                            as={Link}
+                            href="/laporan-seragam"
+                            className={url.includes('laporan-seragam') ? 'bg-blue-200' : ''}
+                        >
+                            Laporan Seragam
+                        </Sidebar.Item>
+                        <Sidebar.Item
+                            as={Link}
+                            href="/laporan-atk"
+                            className={url.includes('laporan-atk') ? 'bg-blue-200' : ''}
+                        >
+                            Laporan ATK
                         </Sidebar.Item>
                     </Sidebar.Collapse>
                     <Sidebar.Item
