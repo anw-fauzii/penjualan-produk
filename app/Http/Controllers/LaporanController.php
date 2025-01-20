@@ -56,7 +56,9 @@ class LaporanController extends Controller
             $total_hpp = 0;
             $total_penjualan = 0;
             $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
-                ->where('status', 'selesai')
+                ->whereHas('pesanan_detail', function($query) {
+                    $query->where('kuantitas', '!=',  '0');
+                })
                 ->whereDate('created_at', '>=', $mulai)
                 ->whereDate('created_at', '<=', $akhir)
                 ->get();
@@ -88,7 +90,6 @@ class LaporanController extends Controller
         $mulai = $request->query('mulai');
         $akhir = $request->query('akhir');
         $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
-            ->where('status', 'selesai')
             ->whereDate('created_at', '>=', $mulai)
             ->whereDate('created_at', '<=', $akhir)
             ->get();
@@ -141,9 +142,11 @@ class LaporanController extends Controller
                 $total_hpp = 0;
                 $total_penjualan = 0;
                 $hitung = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
-                ->where('status', 'selesai')
                 ->whereDate('created_at', '>=', $mulai)
                 ->whereDate('created_at', '<=', $akhir)
+                ->whereHas('pesanan_detail.barang_ukuran.barang', function($query) {
+                    $query->where('kategori_id', 'KTG-240918001');
+                })
                 ->get();
                 foreach ($hitung as $data) {
                     foreach ($data->pesanan_detail as $data2) {
@@ -204,9 +207,11 @@ class LaporanController extends Controller
                 $total_hpp = 0;
                 $total_penjualan = 0;
                 $hitung = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
-                ->where('status', 'selesai')
                 ->whereDate('created_at', '>=', $mulai)
                 ->whereDate('created_at', '<=', $akhir)
+                ->whereHas('pesanan_detail.barang_ukuran.barang', function($query) {
+                    $query->where('kategori_id', 'KTG-240925001');
+                })
                 ->get();
                 foreach ($hitung as $data) {
                     foreach ($data->pesanan_detail as $data2) {

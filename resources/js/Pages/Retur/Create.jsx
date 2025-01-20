@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import CustomFooter from '@/Components/layouts/CustomFooter';
 import CustomNavbar from '@/Components/layouts/CustomNavbar';
@@ -6,22 +6,24 @@ import CustomSidebar from '@/Components/layouts/CustomSidebar';
 import JudulHeader from '@/Components/layouts/JudulHeader';
 import toastr from 'toastr';
 import { NumericFormat } from 'react-number-format';
+import { HiOutlineTrash, HiOutlineShoppingCart } from "react-icons/hi";
 import Swal from 'sweetalert2';
 
 export default function Create(props) {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [cart, setCart] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [searchId, setSearchId] = useState('');
     const [filteredPesanan, setFilteredPesanan] = useState(null);
     const [error, setError] = useState('');
-    const [returnStatus, setReturnStatus] = useState('');
-    const [returnQuantities, setReturnQuantities] = useState({});
-    const [returnSizes, setReturnSizes] = useState({}); // State untuk ukuran baru
+    const barcodeInputRef = useRef(null);
+    const [totals, setTotals] = useState({ subtotal: 0, total: 0, diskon: 0, totalHarga: 0 });
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+    // Handle search
     const handleSearch = () => {
         const trimmedSearchId = searchId.trim();
-
         if (!trimmedSearchId) {
             toastr.error('Silahkan Periksa Kembali Inputan Anda', 'Error!');
             setFilteredPesanan(null);
@@ -38,6 +40,37 @@ export default function Create(props) {
         }
     };
 
+    const calculateTotals = () => {
+        const totalHarga = cart.reduce((total, item) => total + (item.harga_jual * item.kuantitas), 0);
+        const subtotal = cart.reduce((total, item) => total + (item.harga_jual * item.kuantitas) - ((item.harga_jual * (item.diskon / 100)) * item.kuantitas), 0);
+        const diskon = cart.reduce((total, item) => total + ((item.harga_jual * (item.diskon / 100)) * item.kuantitas), 0);
+        const total = subtotal;
+    
+        return { subtotal, total, diskon, totalHarga };
+    };
+    
+    
+    useEffect(() => {
+        const { subtotal, total, diskon, totalHarga } = calculateTotals();
+        setTotals({ subtotal, total, diskon, totalHarga });
+    }, [cart]); // Perhitungan ulang jika cart berubah
+    
+
+    const handleQuantityChange = (id, delta) => {
+        setCart(prevCart =>
+            prevCart.map(item =>
+                item.id === id // cek apakah ID barang sesuai
+                    ? {
+                        ...item,
+                        kuantitas: delta > 0
+                            ? Math.min(item.kuantitas + delta, item.stok) // Cek batasan stok
+                            : Math.max(0, item.kuantitas + delta) // Minimum 1 untuk kuantitas
+                    }
+                    : item
+            )
+        );
+    };
+    
     const handleSubmit = async () => {
         if (!filteredPesanan) {
             setError('No order to return');
@@ -57,8 +90,7 @@ export default function Create(props) {
             }).then((result) => {
                 if (result.isConfirmed) {
                     router.post(`/retur/${filteredPesanan.id}`, {
-                        returnQuantities,
-                        returnSizes, // Mengirim ukuran baru
+                        cart, 
                     });
                     toastr.success('Item Berhasil di Retur', 'Sukses!')
                     setError('');
@@ -74,22 +106,100 @@ export default function Create(props) {
         }
     };
 
-    const handleQuantityChange = (itemId, value) => {
-        const item = filteredPesanan.pesanan_detail.find(detail => detail.id === itemId);
-        const maxQuantity = item ? item.kuantitas : 0;
-
-        setReturnQuantities(prev => ({
-            ...prev,
-            [itemId]: Math.max(0, Math.min(value, maxQuantity))
-        }));
+    // Handle removing item from cart
+    const handleRemoveFromCart = (id) => {
+        setCart(prevCart => prevCart.filter(item => item.id !== id));
     };
 
-    const handleSizeChange = (itemId, sizeId) => {
-        setReturnSizes(prev => ({
-            ...prev,
-            [itemId]: sizeId
-        }));
+    // Add item to cart (with barcode scan functionality)
+    const addToCart = (item) => {
+        if (item.stok > 0) {
+            setCart(prevCart => {
+                const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+                
+                if (existingItem) {
+                    setSearchTerm('');
+                    return prevCart.map(cartItem =>
+                        cartItem.id === item.id
+                            ? { ...cartItem, kuantitas: cartItem.kuantitas + 1 }
+                            : cartItem
+                    );
+                } else {
+                    setSearchTerm('');
+                    return [...prevCart, { ...item, kuantitas: 1 }];
+                }
+            });
+        } else {
+            setSearchTerm('');
+            toastr.warning('Stok barang ini habis.');
+        }
     };
+    
+
+    // Fetch items that match the search term
+    const filteredBarang = props.barang.filter(item =>
+        item.barang.nama_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Effect to handle barcode scanning
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const barcode = barcodeInputRef.current.value.trim();
+                if (barcode) {
+                    const item = props.barang.find(b => b.id === barcode);
+                    if (item) {
+                        addToCart(item);
+                        barcodeInputRef.current.value = '';
+                    } else {
+                        toastr.warning('Item tidak ditemukan.');
+                        barcodeInputRef.current.value = '';
+                    }
+                }
+            }
+        };
+
+        const inputElement = barcodeInputRef.current;
+        if (inputElement) {
+            inputElement.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            if (inputElement) {
+                inputElement.removeEventListener('keydown', handleKeyDown);
+            }
+        };
+    }, [props.barang]);
+
+    useEffect(() => {
+        if (props.pesanan) {
+            // Filter pesanan berdasarkan searchId
+            const filteredData = searchId
+                ? props.pesanan.filter(item => item.id.includes(searchId))
+                : props.pesanan;
+    
+            // Map pesanan_detail ke dalam cart
+            const previousCart = filteredData.reduce((acc, item) => {
+                const pesananDetails = item.pesanan_detail.map(detail => ({
+                    ...detail,
+                    kuantitas: detail.kuantitas, // Pastikan kuantitas adalah angka yang valid
+                    harga_jual: detail.barang_ukuran.harga_jual || 0, // Pastikan harga adalah angka yang valid
+                    diskon: detail.barang_ukuran.diskon || 0, // Pastikan diskon adalah angka yang valid
+                    id: detail.barang_ukuran_id, // ID barang ukuran
+                    stok: detail.barang_ukuran.stok,
+                    barang: {
+                        nama_barang: detail.barang_ukuran.barang.nama_barang, // Nama barang
+                    },
+                    ukuran: detail.barang_ukuran.ukuran, // Ukuran barang
+                }));
+    
+                return [...acc, ...pesananDetails]; // Gabungkan semua pesanan detail ke dalam array cart
+            }, []);
+            setCart(previousCart); // Set cart dengan hasil yang sudah dimasukkan pesanan_detail
+        }
+    }, [props.pesanan, searchId]);
 
     return (
         <div className="flex max-h-screen bg-gray-100 overflow-hidden">
@@ -115,100 +225,153 @@ export default function Create(props) {
                                 Cari
                             </button>
                         </div>
-                        {returnStatus && (
-                            <div className="text-green-600 mb-4 p-4 border border-green-300 rounded-lg bg-green-50">
-                                {returnStatus}
-                            </div>
-                        )}
+
                         {filteredPesanan && (
-                            <div>
-                                <h2 className="text-xl font-semibold mb-4">Detail Pesanan</h2>
-                                <div className="mb-6">
-                                    <h3 className="text-lg font-semibold mb-2">Pesanan ID: {filteredPesanan.id}</h3>
+                            <>
+
+                                {/* Barcode Input Field */}
+                                <div className="mb-4">
+                                    <input
+                                        type="text"
+                                        ref={barcodeInputRef}
+                                        placeholder="Scan barcode..."
+                                        className="p-2 border border-gray-300 rounded w-full"
+                                    />
+                                </div>
+
+                                <div className="mb-4">
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder="Cari produk..."
+                                        className="p-2 border border-gray-300 rounded w-full"
+                                    />
+                                </div>
+                                <div className="mb-4">
                                     <p className="text-gray-700"><strong>Pemesan:</strong> {filteredPesanan.nama_pemesan} - {filteredPesanan.nama_siswa} ({filteredPesanan.kelas})  </p>
                                     <p className="text-gray-700"><strong>Tanggal:</strong> {new Date(filteredPesanan.created_at).toLocaleDateString()}</p>
-                                    <h4 className="font-semibold mt-4 mb-2">Detail:</h4>
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-100">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Produk
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Qty
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Harga
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Retur Qty
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Ukuran Baru
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                            {filteredPesanan.pesanan_detail.map(detail => (
-                                                <tr key={detail.id}>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {detail.barang_ukuran.barang.nama_barang} ({detail.barang_ukuran.ukuran})
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {detail.kuantitas}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <NumericFormat
-                                                            value={detail.subtotal}
+                                </div>
+                                {searchTerm && (
+                                    <div className="mb-4">
+                                        <ul>
+                                            {filteredBarang.length > 0 ? (
+                                                filteredBarang.map(item => (
+                                                    <li key={item.id} className="grid grid-cols-6 gap-4 mb-2 p-2 border border-gray-300 rounded">
+                                                        <span className="inline-flex justify-center items-center">
+                                                            <button
+                                                                onClick={() => addToCart(item)}
+                                                                className="bg-blue-500 text-white px-2 py-1 rounded"
+                                                            >
+                                                                <HiOutlineShoppingCart />
+                                                            </button>
+                                                        </span>
+                                                        <span className="col-span-2">{item.id} - {item.barang.nama_barang} ({item.ukuran})</span>
+                                                        <span><NumericFormat
+                                                            value={item.harga_jual}
                                                             displayType={'text'}
                                                             thousandSeparator={true}
                                                             prefix={'Rp. '}
-                                                        />
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <input
-                                                            type="number"
-                                                            value={returnQuantities[detail.id] || 0}
-                                                            onChange={(e) => handleQuantityChange(detail.id, parseInt(e.target.value))}
-                                                            min="0"
-                                                            max={detail.kuantitas}
-                                                            className="border border-gray-300 rounded-lg p-2 w-24"
-                                                        />
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <select
-                                                            value={returnSizes[detail.id] || detail.barang_ukuran.ukuran} // Default to current size
-                                                            onChange={(e) => handleSizeChange(detail.id, e.target.value)}
-                                                            className="border border-gray-300 rounded-lg p-2"
-                                                        >
-                                                            <option value="" selected>Ukuran</option>
-                                                            {Array.isArray(props.ukuran) && props.ukuran.length > 0 ? (
-                                                                props.ukuran
-                                                                    .filter(size => size.barang_id === detail.barang_ukuran.barang_id)
-                                                                    .map(size => (
-                                                                        <option key={size.id} value={size.id}>
-                                                                            {size.ukuran}
-                                                                        </option>
-                                                                    ))
-                                                            ) : (
-                                                                <option disabled>No sizes available</option> // Atau bisa juga tampilkan pesan lain
-                                                            )}
-                                                        </select>
-                                                    </td>
+                                                        /></span>
+                                                        <span>Disc. {item.diskon}%</span>
+                                                        <span>{item.stok} Tersedia</span>
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <li className="p-4 text-center">No items found</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {/* Cart Items */}
+                                {cart.length > 0 && (
+                                    <div className="p-4 mt-4 rounded-lg shadow-md border border-gray-200">
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr>
+                                                    <th className="border-b px-4 py-2">Item</th>
+                                                    <th className="border-b px-4 py-2">Qty</th>
+                                                    <th className="border-b px-4 py-2">Harga</th>
+                                                    <th className="border-b px-4 py-2">Diskon</th>
+                                                    <th className="border-b px-4 py-2">Total</th>
+                                                    <th className="border-b px-4 py-2">Aksi</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                    <div className="mt-6">
+                                            </thead>
+                                            <tbody>
+                                                {cart.map(item => (
+                                                    <tr key={item.id}>
+                                                        <td className="border-b px-4 py-2">{item.id} - {item.barang.nama_barang} ({item.ukuran})</td>
+                                                        <td className="border-b px-4 py-2">
+                                                            <button
+                                                                onClick={() => handleQuantityChange(item.id, -1)}
+                                                                disabled={item.kuantitas < 1}
+                                                                className="bg-red-500 text-white px-2 py-1 rounded mr-2"
+                                                            >
+                                                                -
+                                                            </button>
+                                                            {item.kuantitas}
+                                                            <button
+                                                                onClick={() => handleQuantityChange(item.id, 1)}
+                                                                className="bg-green-500 text-white px-2 py-1 rounded ml-2"
+                                                            >
+                                                                +
+                                                            </button>
+                                                        </td>
+                                                        <td className="border-b px-4 py-2">
+                                                            <NumericFormat
+                                                                value={item.harga_jual}
+                                                                displayType={'text'}
+                                                                thousandSeparator={true}
+                                                                prefix={'Rp. '}
+                                                            />
+                                                        </td>
+                                                        <td className="border-b px-4 py-2">
+                                                            <NumericFormat
+                                                                value={(item.harga_jual * (item.diskon / 100)) * item.kuantitas}
+                                                                displayType={'text'}
+                                                                thousandSeparator={true}
+                                                                prefix={'Rp. '}
+                                                            />
+                                                        </td>
+                                                        <td className="border-b px-4 py-2">
+                                                            <NumericFormat
+                                                                value={item.harga_jual * item.kuantitas}
+                                                                displayType={'text'}
+                                                                thousandSeparator={true}
+                                                                prefix={'Rp. '}
+                                                            />
+                                                        </td>
+                                                        <td className="border-b px-4 py-2">
+                                                            <button
+                                                                onClick={() => handleRemoveFromCart(item.id)}
+                                                                className="bg-red-500 text-white px-2 py-1 rounded"
+                                                            >
+                                                                <HiOutlineTrash />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+
+                                        <div className="mt-4">
+                                            <p><strong>Subtotal:</strong> <NumericFormat value={totals.totalHarga} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                            <p><strong>Total Diskon:</strong> <NumericFormat value={totals.diskon} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                            <p><strong>Total Belanja:</strong> <NumericFormat value={totals.total} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                            <p><strong>Pembelian Sebelumnya:</strong> <NumericFormat value={filteredPesanan.total_harga} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                            <p><strong>Tambahan:</strong> <NumericFormat value={totals.total - filteredPesanan.total_harga} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} /></p>
+                                        </div>
+
                                         <button
                                             onClick={handleSubmit}
-                                            className="bg-green-600 text-white rounded-lg px-6 py-3 hover:bg-green-700 transition duration-150"
+                                            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
                                         >
                                             Submit Returns
                                         </button>
                                     </div>
-                                </div>
-                            </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </main>

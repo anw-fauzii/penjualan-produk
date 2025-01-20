@@ -19,11 +19,11 @@ class ReturController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $retur = Retur::with('retur_detail', 'pesanan', 'retur_detail.pesanan_detail.barang_ukuran.barang', 'retur_detail.pesanan_detail')
-                ->get();
+            $pesanan = Pesanan::with('pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang')
+            ->whereStatus('Retur')->orderBy('id', 'DESC')->get();
             return Inertia::render('Retur/Index', [
-                'title' => "Retur Barang",
-                'retur' => $retur,
+                'title' => "Daftar Retur Pesanan",
+                'pesanan' => $pesanan,
                 'roleUser' => $user->getRoleNames()
             ]);
         } else {
@@ -35,13 +35,13 @@ class ReturController extends Controller
     {
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('admin')) {
-            $ukuran = BarangUkuran::where('stok', '!=', 0)->get();
+            $barang = BarangUkuran::with('barang')->get();
             $pesanan = Pesanan::with(['pesanan_detail', 'pesanan_detail.barang_ukuran', 'pesanan_detail.barang_ukuran.barang'])
                 ->get();
             return Inertia::render('Retur/Create', [
                 'title' => "Retur Barang",
                 'pesanan' => $pesanan,
-                'ukuran' => $ukuran,
+                'barang' => $barang,
                 'roleUser' => $user->getRoleNames()
             ]);
         } else {
@@ -51,45 +51,59 @@ class ReturController extends Controller
 
     public function store(Request $request, $id)
     {
-        $pesanan = Pesanan::with('pesanan_detail')->findOrFail($id);
-        $pesanan->update([
-            'status' => "Retur",
-        ]);
-        $retur = Retur::create([
-            'pesanan_id' => $pesanan->id,
-        ]);
+        DB::beginTransaction();
 
-        foreach ($request->input('returnQuantities') as $itemId => $quantityToReturn) {
-
-            $item = $pesanan->pesanan_detail()->findOrFail($itemId);
-            ReturDetail::create([
-                'retur_id' => $retur->id,
-                'pesanan_detail_id' => $itemId,
-                'kuantitas' => $quantityToReturn,
-                'barang_ukuran_id' => $request->input('returnSizes')[$itemId] ?? null,
+        try {
+            $pesanan = Pesanan::with('pesanan_detail')->findOrFail($id);
+            $pesanan->update([
+                'status' => "Retur",
             ]);
-            $item->kuantitas -= $quantityToReturn;
-            $item->subtotal = $item->kuantitas * $item->harga;
-            $item->update();
-
-            $pesananDetail = PesananDetail::create([
-                'pesanan_id' => $item->pesanan_id,
-                'barang_ukuran_id' => $request->input('returnSizes')[$itemId] ?? null,
-                'kuantitas' => $quantityToReturn,
-                'harga' => $item->barang_ukuran->harga_jual,
-                'diskon' => $item->barang_ukuran->diskon,
-                'subtotal' => ($item->barang_ukuran->harga_jual * $quantityToReturn) - (($item->barang_ukuran->harga_jual * ($item->barang_ukuran->diskon / 100)) * $quantityToReturn),
+            $retur = Retur::create([
+                'pesanan_id' => $pesanan->id,
             ]);
+            $pesanan_lama = PesananDetail::where('pesanan_id', $id)->get();
+            foreach ($request->input('cart') as $barang_baru) {
+                foreach ($pesanan_lama as $item) {
+                    
+                    $item->delete();
+                }
+                $ukuranLama = BarangUkuran::find($item['barang_ukuran_id']);
+                if ($ukuranLama) {
+                    $ukuranLama->stok += $barang_baru['kuantitas'];
+                    $ukuranLama->save();
+                }
+                // Menghitung harga dan diskon barang baru
+                $harga = $barang_baru['barang_ukuran']['harga_jual'] ?? $barang_baru['harga_jual'];
+                $diskon = $barang_baru['barang_ukuran']['diskon'] ?? $barang_baru['diskon'];
+                $subtotal = ($harga * $barang_baru['kuantitas']) - (($harga * ($diskon / 100)) * $barang_baru['kuantitas']);
+                $pesananDetail = PesananDetail::create([
+                    'pesanan_id' => $id,
+                    'barang_ukuran_id' => $barang_baru['id'] ?? null,
+                    'kuantitas' => $barang_baru['kuantitas'],
+                    'harga' => $harga,
+                    'diskon' => $diskon,
+                    'subtotal' => $subtotal,
+                ]);
 
-            $ukuranLama = BarangUkuran::find($item->barang_ukuran_id);
-            $ukuranLama->stok += $quantityToReturn;
-            $ukuranLama->save();
+                $ukuranBaru = BarangUkuran::find($barang_baru['id']);
+                if ($ukuranBaru) {
+                    $ukuranBaru->stok -= $barang_baru['kuantitas'];
+                    $ukuranBaru->save();
+                }
+            }
 
-            $ukuranBaru = BarangUkuran::find($request->input('returnSizes')[$itemId]);
-            $ukuranBaru->stok -= $quantityToReturn;
-            $ukuranBaru->save();
+            // Commit transaksi jika semua berhasil
+            DB::commit();
+
+            // Kembalikan respon yang sesuai, misalnya sukses
+            return redirect()->back();
+
+        } catch (\Exception $e) {
+            // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
+
+            // Log error dan tangani pengecualian
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
-
-        return redirect()->back();
     }
 }
